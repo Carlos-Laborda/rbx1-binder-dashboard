@@ -1,0 +1,452 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBX1 BoltzGen Campaign Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Space Grotesk', -apple-system, sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 min-h-screen p-8 text-slate-200">
+    
+    <div class="max-w-[1600px] mx-auto space-y-8">
+        
+        <div class="border-b border-slate-700 pb-6 flex justify-between items-end">
+            <div>
+                <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">RBX1 Binder Campaign</h1>
+                <p class="text-lg text-indigo-300">BoltzGen Miniprotein Designs &bull; Full-length RBX1 + 3 Zn&sup2;&plus; ions</p>
+                <p class="text-sm text-slate-400 mt-1">Validated with AF3 &amp; Boltz-2 </p>
+            </div>
+            <div class="text-right flex items-center gap-6">
+                <div class="px-4 py-2 bg-slate-800 rounded border border-slate-700">
+                    <span class="text-xs text-slate-400 block">Total Designs</span>
+                    <span class="text-xl font-bold text-white" id="totalCount">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-slate-800/40 border border-slate-700/50 rounded-lg p-4 text-sm text-slate-400 leading-relaxed">
+            <p><strong class="text-white">Validation Tiers:</strong></p>
+            <ul class="list-disc list-inside mt-1 space-y-1 ml-2">
+                <li><strong class="text-[#10b981]">Platinum:</strong> Strict Consensus (High Confidence). Both AF3 &amp; Boltz agree with iPTM &ge; 0.85 &amp; iPSAE &ge; 0.75.</li>
+                <li><strong class="text-[#3b82f6]">Gold:</strong> Strong Consensus. Both models agree with iPTM &ge; 0.80 &amp; iPSAE &ge; 0.70.</li>
+                <li><strong class="text-[#a855f7]">Silver:</strong> Moderate Consensus. Both models agree with iPTM &ge; 0.75 &amp; iPSAE &ge; 0.60.</li>
+                <li><strong class="text-[#f59e0b]">Bronze:</strong> Single Model Rescue. One model shows high confidence even if the other disagrees.</li>
+                <li><strong class="text-[#ef4444]">Fail:</strong> Poor confidence in both models.</li>
+            </ul>
+        </div>
+
+        <div class="bg-slate-800/60 backdrop-blur border border-slate-700 rounded-lg p-4 flex flex-wrap gap-6 items-center shadow-lg">
+            <div class="flex items-center gap-2 mr-4 border-r border-slate-700 pr-6">
+                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                <span class="text-sm font-bold text-white uppercase tracking-wide">Filters</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <span class="text-xs text-slate-500 uppercase font-bold">Show Tiers:</span>
+                <label class="flex items-center gap-2 cursor-pointer group select-none">
+                    <input type="checkbox" checked class="accent-emerald-500 w-4 h-4 tier-toggle rounded" value="Platinum">
+                    <span class="text-sm text-slate-300 group-hover:text-emerald-400 transition-colors">Platinum</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer group select-none">
+                    <input type="checkbox" checked class="accent-blue-500 w-4 h-4 tier-toggle rounded" value="Gold">
+                    <span class="text-sm text-slate-300 group-hover:text-blue-400 transition-colors">Gold</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer group select-none">
+                    <input type="checkbox" checked class="accent-purple-500 w-4 h-4 tier-toggle rounded" value="Silver">
+                    <span class="text-sm text-slate-300 group-hover:text-purple-400 transition-colors">Silver</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer group select-none">
+                    <input type="checkbox" checked class="accent-orange-500 w-4 h-4 tier-toggle rounded" value="Bronze">
+                    <span class="text-sm text-slate-300 group-hover:text-orange-400 transition-colors">Bronze</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer group select-none">
+                    <input type="checkbox" class="accent-red-500 w-4 h-4 tier-toggle rounded" value="Fail">
+                    <span class="text-sm text-slate-300 group-hover:text-red-400 transition-colors">Fail</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 p-6 shadow-lg flex flex-col h-[500px]">
+                <h3 class="text-center text-slate-300 font-bold mb-4 text-sm uppercase tracking-wide">AF3 vs Boltz2 iPSAE</h3>
+                <div class="relative flex-1 w-full h-full">
+                    <canvas id="canvas_ipsae" class="w-full h-full bg-slate-900/50 rounded cursor-crosshair"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 p-6 shadow-lg flex flex-col h-[500px]">
+                <h3 class="text-center text-slate-300 font-bold mb-4 text-sm uppercase tracking-wide">AF3 vs Boltz2 iPTM</h3>
+                <div class="relative flex-1 w-full h-full">
+                    <canvas id="canvas_iptm" class="w-full h-full bg-slate-900/50 rounded cursor-crosshair"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 p-6 shadow-lg flex flex-col h-[500px]">
+                <h3 class="text-center text-slate-300 font-bold mb-4 text-sm uppercase tracking-wide">Boltz2: iPTM vs iPSAE</h3>
+                <div class="relative flex-1 w-full h-full">
+                    <canvas id="canvas_boltz_check" class="w-full h-full bg-slate-900/50 rounded cursor-crosshair"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 p-6 shadow-lg flex flex-col h-[500px]">
+                <h3 class="text-center text-slate-300 font-bold mb-4 text-sm uppercase tracking-wide">AF3: iPTM vs iPSAE</h3>
+                <div class="relative flex-1 w-full h-full">
+                    <canvas id="canvas_af3_check" class="w-full h-full bg-slate-900/50 rounded cursor-crosshair"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[800px] pb-12">
+            
+            <div class="col-span-12 lg:col-span-8 bg-slate-800/60 backdrop-blur rounded-xl border border-slate-700 shadow-xl overflow-hidden flex flex-col h-full">
+                <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
+                    <h3 class="font-bold text-white flex items-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                        Ranking Table
+                    </h3>
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="Search..." id="tableSearch" class="bg-slate-900 border border-slate-600 rounded px-3 py-1 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 w-48">
+                        <select id="sortSelect" class="bg-slate-900 border border-slate-600 rounded px-2 py-1 text-sm text-slate-300 focus:outline-none focus:border-indigo-500">
+                            <option value="default">Default Sort</option>
+                            <option value="af3_ipsae">AF3 iPSAE</option>
+                            <option value="boltz_ipsae">Boltz iPSAE</option>
+                            <option value="af3_iptm">AF3 iPTM</option>
+                            <option value="boltz_iptm">Boltz iPTM</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex-1 overflow-auto">
+                    <table class="w-full text-sm text-left border-collapse">
+                        <thead class="text-xs text-slate-400 uppercase bg-slate-900 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold border-b border-slate-700">Rank</th>
+                                <th class="px-4 py-3 font-semibold border-b border-slate-700">Status</th>
+                                <th class="px-6 py-3 font-semibold border-b border-slate-700">Design</th>
+                                <th class="px-4 py-3 font-semibold border-b border-slate-700 text-right">AF3 iPSAE</th>
+                                <th class="px-4 py-3 font-semibold border-b border-slate-700 text-right">Boltz iPSAE</th>
+                                <th class="px-4 py-3 font-semibold border-b border-slate-700 text-right">AF3 iPTM</th>
+                                <th class="px-4 py-3 font-semibold border-b border-slate-700 text-right">Boltz iPTM</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-700/50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-span-12 lg:col-span-4 bg-indigo-950/30 backdrop-blur rounded-xl border border-indigo-500/20 p-6 shadow-inner h-full flex flex-col">
+                <h3 class="text-sm font-bold text-indigo-300 uppercase tracking-wide mb-4 border-b border-indigo-500/30 pb-2">Candidate Details</h3>
+                
+                <div id="detailsPlaceholder" class="flex-1 flex flex-col items-center justify-center opacity-50">
+                    <svg class="w-16 h-16 mb-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                    <p class="text-indigo-200">Select a design</p>
+                </div>
+
+                <div id="detailsContent" class="hidden flex-col h-full">
+                    <div class="mb-4">
+                        <div class="flex gap-2 mb-2">
+                             <span id="detailStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border"></span>
+                             <span id="detailRankBadge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-600 text-slate-300 bg-slate-800"></span>
+                        </div>
+                        <h2 id="detailTitle" class="text-xl font-bold text-white break-all mt-2 leading-tight"></h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-slate-900/60 p-3 rounded border border-slate-700">
+                            <p class="text-[10px] text-slate-400 uppercase">AF3 iPSAE</p>
+                            <p id="val_af3_ipsae" class="text-lg font-mono font-bold text-blue-300"></p>
+                        </div>
+                        <div class="bg-slate-900/60 p-3 rounded border border-slate-700">
+                            <p class="text-[10px] text-slate-400 uppercase">Boltz iPSAE</p>
+                            <p id="val_boltz_ipsae" class="text-lg font-mono font-bold text-purple-300"></p>
+                        </div>
+                        <div class="bg-slate-900/60 p-3 rounded border border-slate-700">
+                            <p class="text-[10px] text-slate-400 uppercase">AF3 iPTM</p>
+                            <p id="val_af3_iptm" class="text-lg font-mono font-bold text-white"></p>
+                        </div>
+                        <div class="bg-slate-900/60 p-3 rounded border border-slate-700">
+                            <p class="text-[10px] text-slate-400 uppercase">Boltz iPTM</p>
+                            <p id="val_boltz_iptm" class="text-lg font-mono font-bold text-white"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-slate-900/60 p-2 rounded border border-slate-700">
+                            <p class="text-[9px] text-slate-500 uppercase">BG RMSD</p>
+                            <p id="val_bg_rmsd" class="text-sm font-mono font-bold text-emerald-300"></p>
+                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded border border-slate-700">
+                            <p class="text-[9px] text-slate-500 uppercase">H-Bonds</p>
+                            <p id="val_hbonds" class="text-sm font-mono font-bold text-amber-300"></p>
+                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded border border-slate-700">
+                            <p class="text-[9px] text-slate-500 uppercase">&Delta;SASA</p>
+                            <p id="val_dsasa" class="text-sm font-mono font-bold text-cyan-300"></p>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col min-h-0">
+                        <p class="text-xs text-slate-500 uppercase mb-2">Sequence</p>
+                        <div id="detailSequence" class="bg-slate-950 p-3 rounded border border-slate-800 font-mono text-xs text-slate-300 break-all overflow-y-auto leading-relaxed flex-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const RAW_DATA = [{"Design": "full_run_2_boltzgen_rbx1_1717", "Status": "1_Platinum", "BoltzGen_Rank": 4, "AF3_iPSAE": 0.828395, "Boltz_iPSAE": 0.916519, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9572855234146118, "Boltz_pLDDT": 0.8831362128257751, "BoltzGen_iPTM": 0.54236, "BoltzGen_RMSD": 1.35157, "BoltzGen_DesignRMSD": 0.51129, "H_Bonds": 4, "Delta_SASA": 1036.33545, "Sequence": "SAAEKAIEVAEEAIKLAEEGDVRLAAARVLVAADAVKIVAKALGVEEAVELAEKAKELAVKAIELAEKGELEEAKKLVIEAAKLVIEAAELVLEAEAARA", "sequence_clean": "SAAEKAIEVAEEAIKLAEEGDVRLAAARVLVAADAVKIVAKALGVEEAVELAEKAKELAVKAIELAEKGELEEAKKLVIEAAKLVIEAAELVLEAEAARA"}, {"Design": "full_run_2_boltzgen_rbx1_0108", "Status": "1_Platinum", "BoltzGen_Rank": 89, "AF3_iPSAE": 0.828166, "Boltz_iPSAE": 0.798305, "AF3_iPTM": 0.92, "Boltz_iPTM": 0.931754231452942, "Boltz_pLDDT": 0.8089720606803894, "BoltzGen_iPTM": 0.45013, "BoltzGen_RMSD": 1.51875, "BoltzGen_DesignRMSD": 0.58067, "H_Bonds": 0, "Delta_SASA": 1058.65137, "Sequence": "SALELAREALELAEKAETAEQVIEAAKLVIKAGEEVDTEAGKAAKEAAEYAIELAEKVLKGEGDEADLNLAKAAVINAAEAVIIAAEA", "sequence_clean": "SALELAREALELAEKAETAEQVIEAAKLVIKAGEEVDTEAGKAAKEAAEYAIELAEKVLKGEGDEADLNLAKAAVINAAEAVIIAAEA"}, {"Design": "full_run_1_boltzgen_rbx1_0962", "Status": "1_Platinum", "BoltzGen_Rank": 21, "AF3_iPSAE": 0.824103, "Boltz_iPSAE": 0.879934, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9425449371337892, "Boltz_pLDDT": 0.8406040072441101, "BoltzGen_iPTM": 0.5226, "BoltzGen_RMSD": 2.32685, "BoltzGen_DesignRMSD": 0.5678, "H_Bonds": 3, "Delta_SASA": 979.06348, "Sequence": "SDEEAIDLAAAEILRRIEELAAENGGKVSGLDACLAVWETCDRLVEEGKISRELAREFKDRLTKLLREAALANGGEITVEEAKAAIDEAKAELLAR", "sequence_clean": "SDEEAIDLAAAEILRRIEELAAENGGKVSGLDACLAVWETCDRLVEEGKISRELAREFKDRLTKLLREAALANGGEITVEEAKAAIDEAKAELLAR"}, {"Design": "full_run_1_boltzgen_rbx1_0468", "Status": "1_Platinum", "BoltzGen_Rank": 6, "AF3_iPSAE": 0.821679, "Boltz_iPSAE": 0.926354, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9619990587234496, "Boltz_pLDDT": 0.8889076113700867, "BoltzGen_iPTM": 0.57376, "BoltzGen_RMSD": 2.4268, "BoltzGen_DesignRMSD": 0.59081, "H_Bonds": 3, "Delta_SASA": 1074.67725, "Sequence": "SAAQALVERALELAKEALELAKERGDEEVVKLAEEIIELLEELLKKELSPEAVKAVGEAALHLGFAALALRRGDTELAKEYLEKALEAVRKALELA", "sequence_clean": "SAAQALVERALELAKEALELAKERGDEEVVKLAEEIIELLEELLKKELSPEAVKAVGEAALHLGFAALALRRGDTELAKEYLEKALEAVRKALELA"}, {"Design": "full_run_2_boltzgen_rbx1_0571", "Status": "1_Platinum", "BoltzGen_Rank": 68, "AF3_iPSAE": 0.821277, "Boltz_iPSAE": 0.926052, "AF3_iPTM": 0.92, "Boltz_iPTM": 0.967289388179779, "Boltz_pLDDT": 0.8838651776313782, "BoltzGen_iPTM": 0.55291, "BoltzGen_RMSD": 1.78885, "BoltzGen_DesignRMSD": 0.37698, "H_Bonds": 3, "Delta_SASA": 874.26758, "Sequence": "SPLELALKAAELEEDPLAAATAIVAGEAMEIAAENANVETAEKAGEAALAALSNPEARELIKKGKEIAIKEAEAKR", "sequence_clean": "SPLELALKAAELEEDPLAAATAIVAGEAMEIAAENANVETAEKAGEAALAALSNPEARELIKKGKEIAIKEAEAKR"}, {"Design": "full_run_2_boltzgen_rbx1_0276", "Status": "1_Platinum", "BoltzGen_Rank": 18, "AF3_iPSAE": 0.819252, "Boltz_iPSAE": 0.911883, "AF3_iPTM": 0.92, "Boltz_iPTM": 0.9631744623184204, "Boltz_pLDDT": 0.8513959646224976, "BoltzGen_iPTM": 0.54242, "BoltzGen_RMSD": 1.29622, "BoltzGen_DesignRMSD": 0.63293, "H_Bonds": 7, "Delta_SASA": 1145.12354, "Sequence": "GAEEAIRLAEEAIELGEKALELGIEKAKEVIEVAEEALELAKKALETGDERLANLAVARAEVALEAAKILVEAGKAK", "sequence_clean": "GAEEAIRLAEEAIELGEKALELGIEKAKEVIEVAEEALELAKKALETGDERLANLAVARAEVALEAAKILVEAGKAK"}, {"Design": "full_run_2_boltzgen_rbx1_0640", "Status": "1_Platinum", "BoltzGen_Rank": 74, "AF3_iPSAE": 0.816174, "Boltz_iPSAE": 0.8836, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9487521648406982, "Boltz_pLDDT": 0.8460903167724609, "BoltzGen_iPTM": 0.50229, "BoltzGen_RMSD": 2.42033, "BoltzGen_DesignRMSD": 1.46821, "H_Bonds": 4, "Delta_SASA": 1029.10278, "Sequence": "AAADLIAEAGKLVKEGKGTEAAELAVKAAKQAIEDLKAGKISAEQANLIGAGAIVVAEAARKLGGSEEVAEEARKLAEEAIKLGEEKAEKEK", "sequence_clean": "AAADLIAEAGKLVKEGKGTEAAELAVKAAKQAIEDLKAGKISAEQANLIGAGAIVVAEAARKLGGSEEVAEEARKLAEEAIKLGEEKAEKEK"}, {"Design": "full_run_2_boltzgen_rbx1_1478", "Status": "1_Platinum", "BoltzGen_Rank": 43, "AF3_iPSAE": 0.815201, "Boltz_iPSAE": 0.88306, "AF3_iPTM": 0.92, "Boltz_iPTM": 0.9521109461784364, "Boltz_pLDDT": 0.8460504412651062, "BoltzGen_iPTM": 0.55715, "BoltzGen_RMSD": 0.89772, "BoltzGen_DesignRMSD": 0.88533, "H_Bonds": 2, "Delta_SASA": 1069.96704, "Sequence": "SAAEKALEVAKEALELAKSEDLREVSLALAGAEVALAAAKILLKSEDPEVRKLAKEAVELAKEAIEKAEEQIAKLEA", "sequence_clean": "SAAEKALEVAKEALELAKSEDLREVSLALAGAEVALAAAKILLKSEDPEVRKLAKEAVELAKEAIEKAEEQIAKLEA"}, {"Design": "full_run_2_boltzgen_rbx1_1583", "Status": "1_Platinum", "BoltzGen_Rank": 7, "AF3_iPSAE": 0.813999, "Boltz_iPSAE": 0.926485, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9625126719474792, "Boltz_pLDDT": 0.8564764261245728, "BoltzGen_iPTM": 0.52518, "BoltzGen_RMSD": 1.78445, "BoltzGen_DesignRMSD": 0.61395, "H_Bonds": 3, "Delta_SASA": 1037.45923, "Sequence": "TAGEKAVEAAKEGKFEEAIKAAEEVVKKAEEVVEKDPSNVEARLALAAAEVAVEAIELAKERGDKEVAIKAAKVAEEAEKLVELAEKKIKEKE", "sequence_clean": "TAGEKAVEAAKEGKFEEAIKAAEEVVKKAEEVVEKDPSNVEARLALAAAEVAVEAIELAKERGDKEVAIKAAKVAEEAEKLVELAEKKIKEKE"}, {"Design": "full_run_2_boltzgen_rbx1_1959", "Status": "1_Platinum", "BoltzGen_Rank": 28, "AF3_iPSAE": 0.813162, "Boltz_iPSAE": 0.904914, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9546722173690796, "Boltz_pLDDT": 0.8055438995361328, "BoltzGen_iPTM": 0.56833, "BoltzGen_RMSD": 0.79938, "BoltzGen_DesignRMSD": 0.55686, "H_Bonds": 5, "Delta_SASA": 1081.73047, "Sequence": "TAAARAKKAAEKAKSEKVAKLLKEAAELVEKGLEGKASIEELLKAQELAVEAIKLAAKEGDSREVLQAAADVAVLAGALATEKIAKEKK", "sequence_clean": "TAAARAKKAAEKAKSEKVAKLLKEAAELVEKGLEGKASIEELLKAQELAVEAIKLAAKEGDSREVLQAAADVAVLAGALATEKIAKEKK"}, {"Design": "full_run_2_boltzgen_rbx1_0735", "Status": "1_Platinum", "BoltzGen_Rank": 45, "AF3_iPSAE": 0.812269, "Boltz_iPSAE": 0.895321, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9528242945671082, "Boltz_pLDDT": 0.8513962030410767, "BoltzGen_iPTM": 0.45581, "BoltzGen_RMSD": 1.51841, "BoltzGen_DesignRMSD": 0.68037, "H_Bonds": 4, "Delta_SASA": 1158.74512, "Sequence": "SIEAAKEVIEAGEAVEAAGLTEQGKALKEAGKKAIEALKNGDYQTAILAAARALVAAEAAVKVAEKRGDAEAVEAAKKAIEAAEKVIDYALEKLK", "sequence_clean": "SIEAAKEVIEAGEAVEAAGLTEQGKALKEAGKKAIEALKNGDYQTAILAAARALVAAEAAVKVAEKRGDAEAVEAAKKAIEAAEKVIDYALEKLK"}, {"Design": "full_run_2_boltzgen_rbx1_1183", "Status": "1_Platinum", "BoltzGen_Rank": 47, "AF3_iPSAE": 0.810864, "Boltz_iPSAE": 0.812034, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9262107610702516, "Boltz_pLDDT": 0.8331618309020996, "BoltzGen_iPTM": 0.48004, "BoltzGen_RMSD": 1.18647, "BoltzGen_DesignRMSD": 0.65832, "H_Bonds": 7, "Delta_SASA": 958.8999, "Sequence": "SAVEAAERVAELAEQLGNEEAVELAREVAKLVKEAKELGADERYLRAAEEACEVAVEYLERALATGDKAAANLAVVALEIAVEVAKKGVEEAKARLAE", "sequence_clean": "SAVEAAERVAELAEQLGNEEAVELAREVAKLVKEAKELGADERYLRAAEEACEVAVEYLERALATGDKAAANLAVVALEIAVEVAKKGVEEAKARLAE"}, {"Design": "full_run_2_boltzgen_rbx1_1962", "Status": "1_Platinum", "BoltzGen_Rank": 34, "AF3_iPSAE": 0.809022, "Boltz_iPSAE": 0.962231, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9813743233680724, "Boltz_pLDDT": 0.8464006185531616, "BoltzGen_iPTM": 0.52373, "BoltzGen_RMSD": 1.76784, "BoltzGen_DesignRMSD": 0.57583, "H_Bonds": 3, "Delta_SASA": 954.24561, "Sequence": "SEAQKLLLEAEKLALAAGAPGAGVVAFAEALRALRDGKSEEEAIALATEAALRLGASEEVARKIAELAVKAAKLELEAE", "sequence_clean": "SEAQKLLLEAEKLALAAGAPGAGVVAFAEALRALRDGKSEEEAIALATEAALRLGASEEVARKIAELAVKAAKLELEAE"}, {"Design": "full_run_2_boltzgen_rbx1_1315", "Status": "1_Platinum", "BoltzGen_Rank": 49, "AF3_iPSAE": 0.79722, "Boltz_iPSAE": 0.903576, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9577661156654358, "Boltz_pLDDT": 0.8480221629142761, "BoltzGen_iPTM": 0.5446, "BoltzGen_RMSD": 1.93461, "BoltzGen_DesignRMSD": 0.67326, "H_Bonds": 1, "Delta_SASA": 969.83911, "Sequence": "SAEEALALVDEAIKLAHEAAKLAQAAPEVREKAAELALEACLLAAEARALVNQGRYEEAIELAKEGIKLAKEGIALAKAGI", "sequence_clean": "SAEEALALVDEAIKLAHEAAKLAQAAPEVREKAAELALEACLLAAEARALVNQGRYEEAIELAKEGIKLAKEGIALAKAGI"}, {"Design": "full_run_2_boltzgen_rbx1_1601", "Status": "1_Platinum", "BoltzGen_Rank": 8, "AF3_iPSAE": 0.79175, "Boltz_iPSAE": 0.900411, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9623585939407348, "Boltz_pLDDT": 0.8399748802185059, "BoltzGen_iPTM": 0.56668, "BoltzGen_RMSD": 0.78645, "BoltzGen_DesignRMSD": 0.55912, "H_Bonds": 3, "Delta_SASA": 1130.91772, "Sequence": "SVREKALELLKEAAKVSPLCAKAYELALEGRYEEAIKHAEKAVVEAAAAGDTEGLLAGARALVAAEALKIVAKAEA", "sequence_clean": "SVREKALELLKEAAKVSPLCAKAYELALEGRYEEAIKHAEKAVVEAAAAGDTEGLLAGARALVAAEALKIVAKAEA"}, {"Design": "full_run_2_boltzgen_rbx1_1255", "Status": "1_Platinum", "BoltzGen_Rank": 62, "AF3_iPSAE": 0.790881, "Boltz_iPSAE": 0.908628, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9566674828529358, "Boltz_pLDDT": 0.8401461243629456, "BoltzGen_iPTM": 0.48691, "BoltzGen_RMSD": 2.39492, "BoltzGen_DesignRMSD": 0.73374, "H_Bonds": 2, "Delta_SASA": 1048.27783, "Sequence": "SAAELAVEAGALAVYAKNLAKEAGNEEALKLAEEALRLAEEAIELVKEYAKDPSNKEAEEKAKELAEKAIELAKKAIELAEEAIAKK", "sequence_clean": "SAAELAVEAGALAVYAKNLAKEAGNEEALKLAEEALRLAEEAIELVKEYAKDPSNKEAEEKAKELAEKAIELAKKAIELAEEAIAKK"}, {"Design": "full_run_2_boltzgen_rbx1_1459", "Status": "1_Platinum", "BoltzGen_Rank": 9, "AF3_iPSAE": 0.790132, "Boltz_iPSAE": 0.835331, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9424457550048828, "Boltz_pLDDT": 0.825082004070282, "BoltzGen_iPTM": 0.54418, "BoltzGen_RMSD": 2.12309, "BoltzGen_DesignRMSD": 0.51593, "H_Bonds": 6, "Delta_SASA": 1134.1709, "Sequence": "SAVELAKKAIELAEKALELDPNNVKAHLALARATVALEAAKIAEKNGNKETLEKAKELAEEALKLAEEALKEAK", "sequence_clean": "SAVELAKKAIELAEKALELDPNNVKAHLALARATVALEAAKIAEKNGNKETLEKAKELAEEALKLAEEALKEAK"}, {"Design": "full_run_2_boltzgen_rbx1_1365", "Status": "1_Platinum", "BoltzGen_Rank": 70, "AF3_iPSAE": 0.787564, "Boltz_iPSAE": 0.792399, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9285732507705688, "Boltz_pLDDT": 0.7987270355224609, "BoltzGen_iPTM": 0.47945, "BoltzGen_RMSD": 1.14213, "BoltzGen_DesignRMSD": 0.65496, "H_Bonds": 1, "Delta_SASA": 1135.82251, "Sequence": "SETAERAIKAAEEAIELAKKAKTPTEVKVAAATVLVAAEAVLKVAEALGLEEAVELAKKAIELAEKAIELADEGRVAEAKKLVIEAAKLVIEAAELVKK", "sequence_clean": "SETAERAIKAAEEAIELAKKAKTPTEVKVAAATVLVAAEAVLKVAEALGLEEAVELAKKAIELAEKAIELADEGRVAEAKKLVIEAAKLVIEAAELVKK"}, {"Design": "full_run_2_boltzgen_rbx1_1017", "Status": "1_Platinum", "BoltzGen_Rank": 94, "AF3_iPSAE": 0.787063, "Boltz_iPSAE": 0.853958, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9417086243629456, "Boltz_pLDDT": 0.8247731328010559, "BoltzGen_iPTM": 0.49463, "BoltzGen_RMSD": 0.85942, "BoltzGen_DesignRMSD": 0.6615, "H_Bonds": 5, "Delta_SASA": 982.97998, "Sequence": "SAEEAIKLGEKAIELAKKAIELGKDNPAVVATAKKAIELAKEAIEIAEAALRGEASERETELAVVRAEIALRAAEKALEAAK", "sequence_clean": "SAEEAIKLGEKAIELAKKAIELGKDNPAVVATAKKAIELAKEAIEIAEAALRGEASERETELAVVRAEIALRAAEKALEAAK"}, {"Design": "full_run_1_boltzgen_rbx1_1234", "Status": "1_Platinum", "BoltzGen_Rank": 51, "AF3_iPSAE": 0.782994, "Boltz_iPSAE": 0.845905, "AF3_iPTM": 0.92, "Boltz_iPTM": 0.9368398785591124, "Boltz_pLDDT": 0.8275350332260132, "BoltzGen_iPTM": 0.51012, "BoltzGen_RMSD": 2.44424, "BoltzGen_DesignRMSD": 0.65927, "H_Bonds": 1, "Delta_SASA": 927.44629, "Sequence": "GPGAAAYATVKEISGGKETVSLEEIREAAERLGVDPDAAVADAQAISRDEEALLEIAAGVIAAHL", "sequence_clean": "GPGAAAYATVKEISGGKETVSLEEIREAAERLGVDPDAAVADAQAISRDEEALLEIAAGVIAAHL"}, {"Design": "full_run_2_boltzgen_rbx1_1975", "Status": "1_Platinum", "BoltzGen_Rank": 52, "AF3_iPSAE": 0.778334, "Boltz_iPSAE": 0.852201, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.937187671661377, "Boltz_pLDDT": 0.8342805504798889, "BoltzGen_iPTM": 0.50075, "BoltzGen_RMSD": 1.33341, "BoltzGen_DesignRMSD": 0.61389, "H_Bonds": 1, "Delta_SASA": 962.25, "Sequence": "MAEKAIELGKLAIELAKKAIELGVGEETAEKAIEVAEDAIATAEAYLAGKASEREAELALVAAEIALRAAKKLLEVALA", "sequence_clean": "MAEKAIELGKLAIELAKKAIELGVGEETAEKAIEVAEDAIATAEAYLAGKASEREAELALVAAEIALRAAKKLLEVALA"}, {"Design": "prod_03_clean_boltzgen_rbx1_094", "Status": "1_Platinum", "BoltzGen_Rank": 17, "AF3_iPSAE": 0.776792, "Boltz_iPSAE": 0.84477, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9378847479820251, "Boltz_pLDDT": 0.8040105700492859, "BoltzGen_iPTM": 0.57401, "BoltzGen_RMSD": 2.14642, "BoltzGen_DesignRMSD": 0.88188, "H_Bonds": 8, "Delta_SASA": 1060.05078, "Sequence": "TELGEKVAQAVLEGKIEEAEKILEEFLKEHGDDREALFSLIEDLLGAATYLLSQGNLERARAALELARKLLEHLLEKEPDNKGIKEQLETIKEWIAGT", "sequence_clean": "TELGEKVAQAVLEGKIEEAEKILEEFLKEHGDDREALFSLIEDLLGAATYLLSQGNLERARAALELARKLLEHLLEKEPDNKGIKEQLETIKEWIAGT"}, {"Design": "full_run_2_boltzgen_rbx1_1054", "Status": "1_Platinum", "BoltzGen_Rank": 44, "AF3_iPSAE": 0.775656, "Boltz_iPSAE": 0.855028, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9439581632614136, "Boltz_pLDDT": 0.833206832408905, "BoltzGen_iPTM": 0.51924, "BoltzGen_RMSD": 2.46003, "BoltzGen_DesignRMSD": 0.38758, "H_Bonds": 7, "Delta_SASA": 908.06763, "Sequence": "SALDAGILVVEARRLVEEGKAEEAIKKAEEAIKLAEEAVKTSTNPKVIATAKQIIEDAKKVIEEAEKLL", "sequence_clean": "SALDAGILVVEARRLVEEGKAEEAIKKAEEAIKLAEEAVKTSTNPKVIATAKQIIEDAKKVIEEAEKLL"}, {"Design": "full_run_2_boltzgen_rbx1_0605", "Status": "1_Platinum", "BoltzGen_Rank": 24, "AF3_iPSAE": 0.774654, "Boltz_iPSAE": 0.89336, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9528241157531738, "Boltz_pLDDT": 0.8390867710113525, "BoltzGen_iPTM": 0.55008, "BoltzGen_RMSD": 1.51171, "BoltzGen_DesignRMSD": 0.43692, "H_Bonds": 5, "Delta_SASA": 967.07227, "Sequence": "AKELAKKAIELAKEGRFIEAGELVIEAAKKLGLGEEGVLAGAAGIYAEALERQGGSEEDIEECKKIVIEAAKKCIEAAEKK", "sequence_clean": "AKELAKKAIELAKEGRFIEAGELVIEAAKKLGLGEEGVLAGAAGIYAEALERQGGSEEDIEECKKIVIEAAKKCIEAAEKK"}, {"Design": "full_run_2_boltzgen_rbx1_0559", "Status": "1_Platinum", "BoltzGen_Rank": 66, "AF3_iPSAE": 0.773657, "Boltz_iPSAE": 0.900868, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9624803066253662, "Boltz_pLDDT": 0.8743681907653809, "BoltzGen_iPTM": 0.49632, "BoltzGen_RMSD": 1.22404, "BoltzGen_DesignRMSD": 0.53441, "H_Bonds": 5, "Delta_SASA": 876.60156, "Sequence": "AARELVEEAVKLVKEAIEKKDKEKAKEAIKKAEKAIELAEKEGDEVTVFGAKRVIKAAEKIIEKVE", "sequence_clean": "AARELVEEAVKLVKEAIEKKDKEKAKEAIKKAEKAIELAEKEGDEVTVFGAKRVIKAAEKIIEKVE"}, {"Design": "full_run_2_boltzgen_rbx1_0229", "Status": "1_Platinum", "BoltzGen_Rank": 23, "AF3_iPSAE": 0.772925, "Boltz_iPSAE": 0.83647, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9410324096679688, "Boltz_pLDDT": 0.885650634765625, "BoltzGen_iPTM": 0.5616, "BoltzGen_RMSD": 1.01537, "BoltzGen_DesignRMSD": 0.6593, "H_Bonds": 4, "Delta_SASA": 975.75, "Sequence": "SLAEKAIALGELALELGKDNPLVQAVARKAIEVAEWALAERERNPELAEFAARLALKAAEIAIKAALK", "sequence_clean": "SLAEKAIALGELALELGKDNPLVQAVARKAIEVAEWALAERERNPELAEFAARLALKAAEIAIKAALK"}, {"Design": "full_run_2_boltzgen_rbx1_0964", "Status": "1_Platinum", "BoltzGen_Rank": 91, "AF3_iPSAE": 0.77277, "Boltz_iPSAE": 0.850205, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9349341988563538, "Boltz_pLDDT": 0.821642279624939, "BoltzGen_iPTM": 0.45074, "BoltzGen_RMSD": 1.47523, "BoltzGen_DesignRMSD": 0.80133, "H_Bonds": 4, "Delta_SASA": 890.84692, "Sequence": "SPADVVFEGAVRGGEAAGNPLAGVAAGLAGIAAVKLLEEGKEEEARKAAVEACSKFASPEAAKEAAELLVEAAKLALEGKYEEAFRLAEEAARVVAAGA", "sequence_clean": "SPADVVFEGAVRGGEAAGNPLAGVAAGLAGIAAVKLLEEGKEEEARKAAVEACSKFASPEAAKEAAELLVEAAKLALEGKYEEAFRLAEEAARVVAAGA"}, {"Design": "full_run_2_boltzgen_rbx1_1948", "Status": "1_Platinum", "BoltzGen_Rank": 79, "AF3_iPSAE": 0.771609, "Boltz_iPSAE": 0.869256, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9450385570526124, "Boltz_pLDDT": 0.8258510231971741, "BoltzGen_iPTM": 0.49255, "BoltzGen_RMSD": 1.25097, "BoltzGen_DesignRMSD": 0.52033, "H_Bonds": 2, "Delta_SASA": 986.97803, "Sequence": "SAADLVADAAILVAEARTLVNQGRAEEAIELAKKAIEKAKKAIELAEKEGNELAVEAAKKVIEDAKEVIKRAEELLAAAA", "sequence_clean": "SAADLVADAAILVAEARTLVNQGRAEEAIELAKKAIEKAKKAIELAEKEGNELAVEAAKKVIEDAKEVIKRAEELLAAAA"}, {"Design": "full_run_2_boltzgen_rbx1_0257", "Status": "1_Platinum", "BoltzGen_Rank": 14, "AF3_iPSAE": 0.770723, "Boltz_iPSAE": 0.850103, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9419544339179992, "Boltz_pLDDT": 0.8252323865890503, "BoltzGen_iPTM": 0.58236, "BoltzGen_RMSD": 1.75774, "BoltzGen_DesignRMSD": 1.24415, "H_Bonds": 3, "Delta_SASA": 1121.85645, "Sequence": "SERAVALAREAIKLAKQGKAVEAARKVIEAHAEALIARNKGDNAGADEALRLADEARKLVKEQIKKKFAE", "sequence_clean": "SERAVALAREAIKLAKQGKAVEAARKVIEAHAEALIARNKGDNAGADEALRLADEARKLVKEQIKKKFAE"}, {"Design": "full_run_2_boltzgen_rbx1_1893", "Status": "1_Platinum", "BoltzGen_Rank": 29, "AF3_iPSAE": 0.768562, "Boltz_iPSAE": 0.889901, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9531871676445008, "Boltz_pLDDT": 0.8555359244346619, "BoltzGen_iPTM": 0.55923, "BoltzGen_RMSD": 1.47216, "BoltzGen_DesignRMSD": 0.92137, "H_Bonds": 6, "Delta_SASA": 1124.75513, "Sequence": "SLGEKAIELAKEAVKTGDPEKVVEAARLVIDAGIKALELERAGKEEEARKEWELADEARKLVREAAKAALAAA", "sequence_clean": "SLGEKAIELAKEAVKTGDPEKVVEAARLVIDAGIKALELERAGKEEEARKEWELADEARKLVREAAKAALAAA"}, {"Design": "full_run_2_boltzgen_rbx1_1930", "Status": "1_Platinum", "BoltzGen_Rank": 73, "AF3_iPSAE": 0.766903, "Boltz_iPSAE": 0.890423, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9516586661338806, "Boltz_pLDDT": 0.8043894171714783, "BoltzGen_iPTM": 0.53014, "BoltzGen_RMSD": 1.36131, "BoltzGen_DesignRMSD": 0.69287, "H_Bonds": 2, "Delta_SASA": 866.44287, "Sequence": "SPLEVAKKALEVGAASTDGKAFVAAALAARAAVLAAQGKNPEEAVELAEEAIKLAEEAGDPEVVELAREALEFAKKALE", "sequence_clean": "SPLEVAKKALEVGAASTDGKAFVAAALAARAAVLAAQGKNPEEAVELAEEAIKLAEEAGDPEVVELAREALEFAKKALE"}, {"Design": "full_run_2_boltzgen_rbx1_1865", "Status": "1_Platinum", "BoltzGen_Rank": 93, "AF3_iPSAE": 0.763787, "Boltz_iPSAE": 0.872191, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9423884749412536, "Boltz_pLDDT": 0.8125470876693726, "BoltzGen_iPTM": 0.52649, "BoltzGen_RMSD": 1.65851, "BoltzGen_DesignRMSD": 0.55219, "H_Bonds": 3, "Delta_SASA": 816.15137, "Sequence": "SAEEAIELAKKALELLTDPEAKAAAETIIKAAKDVLEGKNPGAAAVDAGCAANYAAALAEKEGKPEAAELALKAGDLVIDEAKKVIEEKK", "sequence_clean": "SAEEAIELAKKALELLTDPEAKAAAETIIKAAKDVLEGKNPGAAAVDAGCAANYAAALAEKEGKPEAAELALKAGDLVIDEAKKVIEEKK"}, {"Design": "full_run_2_boltzgen_rbx1_0813", "Status": "1_Platinum", "BoltzGen_Rank": 22, "AF3_iPSAE": 0.761039, "Boltz_iPSAE": 0.841479, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9522533416748048, "Boltz_pLDDT": 0.8666114807128906, "BoltzGen_iPTM": 0.5134, "BoltzGen_RMSD": 0.97682, "BoltzGen_DesignRMSD": 0.50485, "H_Bonds": 5, "Delta_SASA": 1041.48926, "Sequence": "SLAELAIALAKKALELAPENPRVVAAAEAAIELGEHALKTGDERAAELALVRAELALKAAELLNK", "sequence_clean": "SLAELAIALAKKALELAPENPRVVAAAEAAIELGEHALKTGDERAAELALVRAELALKAAELLNK"}, {"Design": "full_run_2_boltzgen_rbx1_0786", "Status": "1_Platinum", "BoltzGen_Rank": 54, "AF3_iPSAE": 0.760945, "Boltz_iPSAE": 0.893743, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.961906909942627, "Boltz_pLDDT": 0.7837674617767334, "BoltzGen_iPTM": 0.5523, "BoltzGen_RMSD": 1.65569, "BoltzGen_DesignRMSD": 0.7968, "H_Bonds": 3, "Delta_SASA": 970.10986, "Sequence": "SAVEGAEALLEACKTEKNPGLIAAIALVAAEAAGRPELGERALEAAETDVEKARELGIEAAKLAIERAKEVEA", "sequence_clean": "SAVEGAEALLEACKTEKNPGLIAAIALVAAEAAGRPELGERALEAAETDVEKARELGIEAAKLAIERAKEVEA"}, {"Design": "full_run_2_boltzgen_rbx1_0979", "Status": "1_Platinum", "BoltzGen_Rank": 48, "AF3_iPSAE": 0.759839, "Boltz_iPSAE": 0.917131, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9648127555847168, "Boltz_pLDDT": 0.8548634052276611, "BoltzGen_iPTM": 0.54501, "BoltzGen_RMSD": 1.48531, "BoltzGen_DesignRMSD": 0.78773, "H_Bonds": 1, "Delta_SASA": 936.17969, "Sequence": "SALLVEAAKLVCEAGILVLEGRYEEAIKKAKEAIELAKKAIEEAKTEEEKKVAEKIIEKAKEIIEAAEKALAEE", "sequence_clean": "SALLVEAAKLVCEAGILVLEGRYEEAIKKAKEAIELAKKAIEEAKTEEEKKVAEKIIEKAKEIIEAAEKALAEE"}, {"Design": "full_run_2_boltzgen_rbx1_1964", "Status": "1_Platinum", "BoltzGen_Rank": 64, "AF3_iPSAE": 0.758643, "Boltz_iPSAE": 0.930536, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9690440893173218, "Boltz_pLDDT": 0.8661859035491943, "BoltzGen_iPTM": 0.48161, "BoltzGen_RMSD": 1.25299, "BoltzGen_DesignRMSD": 0.5254, "H_Bonds": 14, "Delta_SASA": 1224.73926, "Sequence": "SPLAERAIVLAELAIVLAEKAKPVNPEVAEKVIELAKEAIELALKALKAKDPAERERLAELALTRAEIAVRAAERLLAA", "sequence_clean": "SPLAERAIVLAELAIVLAEKAKPVNPEVAEKVIELAKEAIELALKALKAKDPAERERLAELALTRAEIAVRAAERLLAA"}, {"Design": "full_run_1_boltzgen_rbx1_0009", "Status": "1_Platinum", "BoltzGen_Rank": 57, "AF3_iPSAE": 0.755798, "Boltz_iPSAE": 0.942963, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9673063158988952, "Boltz_pLDDT": 0.8484097719192505, "BoltzGen_iPTM": 0.49872, "BoltzGen_RMSD": 2.01119, "BoltzGen_DesignRMSD": 0.77584, "H_Bonds": 5, "Delta_SASA": 1021.90381, "Sequence": "GLAEEGDKLMDKAVELAKQGKYKEAAIHYVKAAIKYAKAGDKNGALLAIEAALMLLDSLDSPEVKKAKELLEKAREALEEGKLEEAIKLLEEALKALEKA", "sequence_clean": "GLAEEGDKLMDKAVELAKQGKYKEAAIHYVKAAIKYAKAGDKNGALLAIEAALMLLDSLDSPEVKKAKELLEKAREALEEGKLEEAIKLLEEALKALEKA"}, {"Design": "full_run_2_boltzgen_rbx1_1176", "Status": "1_Platinum", "BoltzGen_Rank": 86, "AF3_iPSAE": 0.755078, "Boltz_iPSAE": 0.833288, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9473484754562378, "Boltz_pLDDT": 0.839474081993103, "BoltzGen_iPTM": 0.48555, "BoltzGen_RMSD": 1.60359, "BoltzGen_DesignRMSD": 0.99578, "H_Bonds": 0, "Delta_SASA": 935.74146, "Sequence": "SALELADKALELAKKALELGEECLAAEAARLAIEARALAIYAEKTGDEELLRRAEALAREGVAIAEEGIARGLA", "sequence_clean": "SALELADKALELAKKALELGEECLAAEAARLAIEARALAIYAEKTGDEELLRRAEALAREGVAIAEEGIARGLA"}, {"Design": "full_run_2_boltzgen_rbx1_0742", "Status": "1_Platinum", "BoltzGen_Rank": 3, "AF3_iPSAE": 0.754412, "Boltz_iPSAE": 0.94725, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9740244746208192, "Boltz_pLDDT": 0.8603753447532654, "BoltzGen_iPTM": 0.5385, "BoltzGen_RMSD": 1.42614, "BoltzGen_DesignRMSD": 0.56737, "H_Bonds": 5, "Delta_SASA": 1064.59229, "Sequence": "SLAERVLEAAKEQVELAKEALERKDENLAELAIFGAEIVKKAAEKVLKEAKTEEEKKLAEEAIKLAEEAIKLAEEALALT", "sequence_clean": "SLAERVLEAAKEQVELAKEALERKDENLAELAIFGAEIVKKAAEKVLKEAKTEEEKKLAEEAIKLAEEAIKLAEEALALT"}, {"Design": "full_run_2_boltzgen_rbx1_0757", "Status": "1_Platinum", "BoltzGen_Rank": 67, "AF3_iPSAE": 0.754182, "Boltz_iPSAE": 0.830983, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9453638792037964, "Boltz_pLDDT": 0.8850859999656677, "BoltzGen_iPTM": 0.48439, "BoltzGen_RMSD": 2.18924, "BoltzGen_DesignRMSD": 0.48205, "H_Bonds": 4, "Delta_SASA": 876.08105, "Sequence": "SLVERAEEFVELAKKALEEADRNLAEVTLFGAELVLRAAEAAGDEEAVELARKAIELAKKAIEKAKAR", "sequence_clean": "SLVERAEEFVELAKKALEEADRNLAEVTLFGAELVLRAAEAAGDEEAVELARKAIELAKKAIEKAKAR"}, {"Design": "full_run_2_boltzgen_rbx1_0079", "Status": "1_Platinum", "BoltzGen_Rank": 11, "AF3_iPSAE": 0.752236, "Boltz_iPSAE": 0.854378, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9555066823959352, "Boltz_pLDDT": 0.8446789979934692, "BoltzGen_iPTM": 0.54928, "BoltzGen_RMSD": 1.82648, "BoltzGen_DesignRMSD": 0.4725, "H_Bonds": 3, "Delta_SASA": 1086.04688, "Sequence": "TEAVELAKKALELAKAGRAEEALKLADKALELARKMIEAGENLEDALEAARLAILARAEALYVLSR", "sequence_clean": "TEAVELAKKALELAKAGRAEEALKLADKALELARKMIEAGENLEDALEAARLAILARAEALYVLSR"}, {"Design": "full_run_2_boltzgen_rbx1_0658", "Status": "2_Gold", "BoltzGen_Rank": 84, "AF3_iPSAE": 0.80453, "Boltz_iPSAE": 0.742443, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.908215880393982, "Boltz_pLDDT": 0.8286886215209961, "BoltzGen_iPTM": 0.50763, "BoltzGen_RMSD": 2.06915, "BoltzGen_DesignRMSD": 0.4811, "H_Bonds": 0, "Delta_SASA": 999.91455, "Sequence": "SAVELAKRAIELAEEALKTGDPALANEAARLAVLAHAEALYLRTQGKHEEADKALELAEKALELVKKAVEKVLALR", "sequence_clean": "SAVELAKRAIELAEEALKTGDPALANEAARLAVLAHAEALYLRTQGKHEEADKALELAEKALELVKKAVEKVLALR"}, {"Design": "full_run_2_boltzgen_rbx1_1099", "Status": "2_Gold", "BoltzGen_Rank": 13, "AF3_iPSAE": 0.796421, "Boltz_iPSAE": 0.747944, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.910362422466278, "Boltz_pLDDT": 0.7654063701629639, "BoltzGen_iPTM": 0.50218, "BoltzGen_RMSD": 2.01317, "BoltzGen_DesignRMSD": 0.57004, "H_Bonds": 4, "Delta_SASA": 1026.73096, "Sequence": "SAEDALKVAEDALKLAKEALETGDKNLALLALARAEVALAAAEKLVKETGSEKAKKAIELAEEAIKLAEKAIELAEKKEKEA", "sequence_clean": "SAEDALKVAEDALKLAKEALETGDKNLALLALARAEVALAAAEKLVKETGSEKAKKAIELAEEAIKLAEKAIELAEKKEKEA"}, {"Design": "full_run_2_boltzgen_rbx1_1927", "Status": "2_Gold", "BoltzGen_Rank": 38, "AF3_iPSAE": 0.782026, "Boltz_iPSAE": 0.748306, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.9229384064674376, "Boltz_pLDDT": 0.8461428284645081, "BoltzGen_iPTM": 0.49373, "BoltzGen_RMSD": 1.26488, "BoltzGen_DesignRMSD": 0.5721, "H_Bonds": 5, "Delta_SASA": 942.93945, "Sequence": "SAEEAIKLGEKAIELAEAAGNPEVVELAKAAIELAKEALEKGDEALAEFALFQAELALRAAERLLERKLA", "sequence_clean": "SAEEAIKLGEKAIELAEAAGNPEVVELAKAAIELAKEALEKGDEALAEFALFQAELALRAAERLLERKLA"}, {"Design": "full_run_2_boltzgen_rbx1_1202", "Status": "2_Gold", "BoltzGen_Rank": 39, "AF3_iPSAE": 0.743966, "Boltz_iPSAE": 0.853447, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9422968029975892, "Boltz_pLDDT": 0.8426558971405029, "BoltzGen_iPTM": 0.46596, "BoltzGen_RMSD": 1.95715, "BoltzGen_DesignRMSD": 0.38125, "H_Bonds": 3, "Delta_SASA": 1105.71484, "Sequence": "SALELGKKAAEAVRAGRYEEAIELLQEMAKLAQTDPEEAIKGAELVIEAAEAVLAKDPTDTGARLVLVAAECVREAAERL", "sequence_clean": "SALELGKKAAEAVRAGRYEEAIELLQEMAKLAQTDPEEAIKGAELVIEAAEAVLAKDPTDTGARLVLVAAECVREAAERL"}, {"Design": "full_run_2_boltzgen_rbx1_0822", "Status": "2_Gold", "BoltzGen_Rank": 82, "AF3_iPSAE": 0.738304, "Boltz_iPSAE": 0.723048, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9121356010437012, "Boltz_pLDDT": 0.8285280466079712, "BoltzGen_iPTM": 0.52133, "BoltzGen_RMSD": 2.27879, "BoltzGen_DesignRMSD": 0.87555, "H_Bonds": 0, "Delta_SASA": 1112.32373, "Sequence": "SAEEAIERAIEMAKKLGVSEKTARVAAELIIEGKPGTLETAKEVAEKTGATVEEAARAIVAAGAAVTEELARA", "sequence_clean": "SAEEAIERAIEMAKKLGVSEKTARVAAELIIEGKPGTLETAKEVAEKTGATVEEAARAIVAAGAAVTEELARA"}, {"Design": "full_run_2_boltzgen_rbx1_1434", "Status": "2_Gold", "BoltzGen_Rank": 99, "AF3_iPSAE": 0.737328, "Boltz_iPSAE": 0.901163, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9599272012710572, "Boltz_pLDDT": 0.8517560362815857, "BoltzGen_iPTM": 0.54389, "BoltzGen_RMSD": 1.48771, "BoltzGen_DesignRMSD": 0.73465, "H_Bonds": 5, "Delta_SASA": 1015.00439, "Sequence": "SLARLAIGAAECAIAAAKKLGKPEEAIKLAKEAIKLAEKALETGDEALAEKALELAEKALEIVREEIAKK", "sequence_clean": "SLARLAIGAAECAIAAAKKLGKPEEAIKLAKEAIKLAEKALETGDEALAEKALELAEKALEIVREEIAKK"}, {"Design": "full_run_2_boltzgen_rbx1_1521", "Status": "2_Gold", "BoltzGen_Rank": 2, "AF3_iPSAE": 0.734345, "Boltz_iPSAE": 0.897255, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9549104571342468, "Boltz_pLDDT": 0.8611865043640137, "BoltzGen_iPTM": 0.59009, "BoltzGen_RMSD": 1.71232, "BoltzGen_DesignRMSD": 0.79118, "H_Bonds": 6, "Delta_SASA": 1071.58398, "Sequence": "SKEKAVAVAEEAAEILKEAGVGELAAEAVELVKKTGSGEAAVNLGIAGLYAERAKEDPELRELAREAAEEAVRAARAALAK", "sequence_clean": "SKEKAVAVAEEAAEILKEAGVGELAAEAVELVKKTGSGEAAVNLGIAGLYAERAKEDPELRELAREAAEEAVRAARAALAK"}, {"Design": "full_run_2_boltzgen_rbx1_0202", "Status": "2_Gold", "BoltzGen_Rank": 35, "AF3_iPSAE": 0.733878, "Boltz_iPSAE": 0.885868, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9524744153022766, "Boltz_pLDDT": 0.8717169165611267, "BoltzGen_iPTM": 0.58718, "BoltzGen_RMSD": 1.27085, "BoltzGen_DesignRMSD": 1.00233, "H_Bonds": 5, "Delta_SASA": 949.10962, "Sequence": "STAERAIEAAKEAVELAKNAETINQAELAKVRAEIALKAAEKLGNEEAVKLAKEAIKLAEEKIKELKEKE", "sequence_clean": "STAERAIEAAKEAVELAKNAETINQAELAKVRAEIALKAAEKLGNEEAVKLAKEAIKLAEEKIKELKEKE"}, {"Design": "full_run_2_boltzgen_rbx1_0529", "Status": "2_Gold", "BoltzGen_Rank": 58, "AF3_iPSAE": 0.731989, "Boltz_iPSAE": 0.923151, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9656982421875, "Boltz_pLDDT": 0.8437683582305908, "BoltzGen_iPTM": 0.46509, "BoltzGen_RMSD": 1.58629, "BoltzGen_DesignRMSD": 1.02487, "H_Bonds": 6, "Delta_SASA": 974.43359, "Sequence": "SAEEAIEIAEKAIELAKEAGSECVVEAAKRALELAKEALEELKKTNSEEAKLRAEIAKELAEVCLKAAEEVVKKK", "sequence_clean": "SAEEAIEIAEKAIELAKEAGSECVVEAAKRALELAKEALEELKKTNSEEAKLRAEIAKELAEVCLKAAEEVVKKK"}, {"Design": "full_run_2_boltzgen_rbx1_0826", "Status": "2_Gold", "BoltzGen_Rank": 15, "AF3_iPSAE": 0.730499, "Boltz_iPSAE": 0.905516, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9601128101348876, "Boltz_pLDDT": 0.8847599029541016, "BoltzGen_iPTM": 0.48987, "BoltzGen_RMSD": 1.05654, "BoltzGen_DesignRMSD": 0.46827, "H_Bonds": 4, "Delta_SASA": 1002.08789, "Sequence": "SPVAERIAEIAGISVETAEKCIEVCEEAVREGKEEEGFEKAVELCLEAGASEREAELAAVAALLVAEARVRAE", "sequence_clean": "SPVAERIAEIAGISVETAEKCIEVCEEAVREGKEEEGFEKAVELCLEAGASEREAELAAVAALLVAEARVRAE"}, {"Design": "full_run_2_boltzgen_rbx1_1770", "Status": "2_Gold", "BoltzGen_Rank": 37, "AF3_iPSAE": 0.729312, "Boltz_iPSAE": 0.913591, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.965092122554779, "Boltz_pLDDT": 0.8550317287445068, "BoltzGen_iPTM": 0.5057, "BoltzGen_RMSD": 1.31374, "BoltzGen_DesignRMSD": 0.95979, "H_Bonds": 3, "Delta_SASA": 1138.44141, "Sequence": "ANEAELVIFGAELVIKAAEKLGVPEAVELAKKAIELAKEGKVVEAAKLVEEARKLVEAAAEKAIAAR", "sequence_clean": "ANEAELVIFGAELVIKAAEKLGVPEAVELAKKAIELAKEGKVVEAAKLVEEARKLVEAAAEKAIAAR"}, {"Design": "full_run_2_boltzgen_rbx1_0789", "Status": "2_Gold", "BoltzGen_Rank": 16, "AF3_iPSAE": 0.723588, "Boltz_iPSAE": 0.917356, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9643503427505492, "Boltz_pLDDT": 0.8736540675163269, "BoltzGen_iPTM": 0.52253, "BoltzGen_RMSD": 2.40678, "BoltzGen_DesignRMSD": 0.58903, "H_Bonds": 3, "Delta_SASA": 1054.21143, "Sequence": "SPLVEKAEELVEKAVKLVKEGKYEEAIKLAEEAIKLAEKAIKESTDPEVINRARAVVFGAELVIKAAEKLLKK", "sequence_clean": "SPLVEKAEELVEKAVKLVKEGKYEEAIKLAEEAIKLAEKAIKESTDPEVINRARAVVFGAELVIKAAEKLLKK"}, {"Design": "full_run_2_boltzgen_rbx1_1354", "Status": "2_Gold", "BoltzGen_Rank": 90, "AF3_iPSAE": 0.722792, "Boltz_iPSAE": 0.903949, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9612689018249512, "Boltz_pLDDT": 0.8510099649429321, "BoltzGen_iPTM": 0.50335, "BoltzGen_RMSD": 1.31728, "BoltzGen_DesignRMSD": 0.80601, "H_Bonds": 4, "Delta_SASA": 1203.34863, "Sequence": "SKAEEAVKLAERAVETGDPADAVEAARLAVEAGIEALELYREGREEEAERLFELAEKARELVKKAVEKIFEQR", "sequence_clean": "SKAEEAVKLAERAVETGDPADAVEAARLAVEAGIEALELYREGREEEAERLFELAEKARELVKKAVEKIFEQR"}, {"Design": "full_run_2_boltzgen_rbx1_0595", "Status": "2_Gold", "BoltzGen_Rank": 61, "AF3_iPSAE": 0.72045, "Boltz_iPSAE": 0.886281, "AF3_iPTM": 0.88, "Boltz_iPTM": 0.9554802775382996, "Boltz_pLDDT": 0.8857183456420898, "BoltzGen_iPTM": 0.54582, "BoltzGen_RMSD": 2.35586, "BoltzGen_DesignRMSD": 0.53777, "H_Bonds": 10, "Delta_SASA": 892.76953, "Sequence": "SELAEKAIELAEKAVELAKRGENPELALFQAEIALKAGEKLLKKGDKKAEEAIKLAEEAIKLAEKELAK", "sequence_clean": "SELAEKAIELAEKAVELAKRGENPELALFQAEIALKAGEKLLKKGDKKAEEAIKLAEEAIKLAEKELAK"}, {"Design": "full_run_2_boltzgen_rbx1_0275", "Status": "3_Silver", "BoltzGen_Rank": 71, "AF3_iPSAE": 0.833172, "Boltz_iPSAE": 0.654395, "AF3_iPTM": 0.93, "Boltz_iPTM": 0.8985762596130371, "Boltz_pLDDT": 0.8517348766326904, "BoltzGen_iPTM": 0.47838, "BoltzGen_RMSD": 1.23922, "BoltzGen_DesignRMSD": 0.5785, "H_Bonds": 3, "Delta_SASA": 1095.61328, "Sequence": "SAAEEALELAKRAIELARQGRVCEAARLVVEAGALANYALARYRRGELSEEEGRIAEEALRLREEAARLVREAAAAL", "sequence_clean": "SAAEEALELAKRAIELARQGRVCEAARLVVEAGALANYALARYRRGELSEEEGRIAEEALRLREEAARLVREAAAAL"}, {"Design": "full_run_2_boltzgen_rbx1_1910", "Status": "3_Silver", "BoltzGen_Rank": 92, "AF3_iPSAE": 0.801946, "Boltz_iPSAE": 0.619888, "AF3_iPTM": 0.92, "Boltz_iPTM": 0.9041978120803832, "Boltz_pLDDT": 0.7891391515731812, "BoltzGen_iPTM": 0.44033, "BoltzGen_RMSD": 1.58742, "BoltzGen_DesignRMSD": 0.50354, "H_Bonds": 5, "Delta_SASA": 940.85059, "Sequence": "SLIDEARKLLEEAEKLLREGRYEEAIELARKAIELAKEAIKKTGSPEARLVLAGAEVVLDAAEAALAKL", "sequence_clean": "SLIDEARKLLEEAEKLLREGRYEEAIELARKAIELAKEAIKKTGSPEARLVLAGAEVVLDAAEAALAKL"}, {"Design": "full_run_2_boltzgen_rbx1_0207", "Status": "3_Silver", "BoltzGen_Rank": 19, "AF3_iPSAE": 0.777873, "Boltz_iPSAE": 0.637707, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.8448559641838074, "Boltz_pLDDT": 0.7529140114784241, "BoltzGen_iPTM": 0.51504, "BoltzGen_RMSD": 1.64123, "BoltzGen_DesignRMSD": 0.70892, "H_Bonds": 3, "Delta_SASA": 982.44678, "Sequence": "SLEEAIERAAEVVSERFGVSLEDAREAVRLLLEGRTEEAIEILSKNLSKVEAAEAVVLGGAEVLYELSKY", "sequence_clean": "SLEEAIERAAEVVSERFGVSLEDAREAVRLLLEGRTEEAIEILSKNLSKVEAAEAVVLGGAEVLYELSKY"}, {"Design": "full_run_2_boltzgen_rbx1_0535", "Status": "3_Silver", "BoltzGen_Rank": 65, "AF3_iPSAE": 0.75678, "Boltz_iPSAE": 0.629949, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.9109047651290894, "Boltz_pLDDT": 0.8448299765586853, "BoltzGen_iPTM": 0.44504, "BoltzGen_RMSD": 1.90693, "BoltzGen_DesignRMSD": 1.00114, "H_Bonds": 3, "Delta_SASA": 1011.28857, "Sequence": "SLAEALEEAAKIIMEKDGLTEDEARLAAIAAGMAVEAGLSPEEAGEVVAERHGVSVEAAVEAARLLAEA", "sequence_clean": "SLAEALEEAAKIIMEKDGLTEDEARLAAIAAGMAVEAGLSPEEAGEVVAERHGVSVEAAVEAARLLAEA"}, {"Design": "full_run_2_boltzgen_rbx1_0719", "Status": "3_Silver", "BoltzGen_Rank": 78, "AF3_iPSAE": 0.747062, "Boltz_iPSAE": 0.636258, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.9013245105743408, "Boltz_pLDDT": 0.7915754914283752, "BoltzGen_iPTM": 0.59646, "BoltzGen_RMSD": 1.39673, "BoltzGen_DesignRMSD": 0.94606, "H_Bonds": 5, "Delta_SASA": 1120.47412, "Sequence": "SPVELAKRAIKLAEEGRVVEAACLAIEAGAEATRLYNEAKRTGDAAALARAEEARKLADEAFKLVREEAAKKLA", "sequence_clean": "SPVELAKRAIKLAEEGRVVEAACLAIEAGAEATRLYNEAKRTGDAAALARAEEARKLADEAFKLVREEAAKKLA"}, {"Design": "full_run_2_boltzgen_rbx1_1216", "Status": "3_Silver", "BoltzGen_Rank": 1, "AF3_iPSAE": 0.692175, "Boltz_iPSAE": 0.935401, "AF3_iPTM": 0.86, "Boltz_iPTM": 0.9699323773384094, "Boltz_pLDDT": 0.8564358353614807, "BoltzGen_iPTM": 0.6044, "BoltzGen_RMSD": 1.98224, "BoltzGen_DesignRMSD": 0.67123, "H_Bonds": 7, "Delta_SASA": 1158.79004, "Sequence": "TAEDVIKKAEEIIKEAQELKGQGAEELADKAIKLAEEAIKLAEEALKTGDQALIVEAAKLVVEAGILVMEARREAEALQ", "sequence_clean": "TAEDVIKKAEEIIKEAQELKGQGAEELADKAIKLAEEAIKLAEEALKTGDQALIVEAAKLVVEAGILVMEARREAEALQ"}, {"Design": "full_run_2_boltzgen_rbx1_1235", "Status": "3_Silver", "BoltzGen_Rank": 75, "AF3_iPSAE": 0.689468, "Boltz_iPSAE": 0.801539, "AF3_iPTM": 0.86, "Boltz_iPTM": 0.9263291954994202, "Boltz_pLDDT": 0.8708300590515137, "BoltzGen_iPTM": 0.44298, "BoltzGen_RMSD": 2.3402, "BoltzGen_DesignRMSD": 0.66465, "H_Bonds": 6, "Delta_SASA": 856.63184, "Sequence": "TVEEAREVAVKALVDAGASEAEARAAAERAVELGKEGKIEEAGKVGRDVAEAAARRRGASPTQIELYALRAELAARAVAEAALKEKK", "sequence_clean": "TVEEAREVAVKALVDAGASEAEARAAAERAVELGKEGKIEEAGKVGRDVAEAAARRRGASPTQIELYALRAELAARAVAEAALKEKK"}, {"Design": "full_run_2_boltzgen_rbx1_1557", "Status": "3_Silver", "BoltzGen_Rank": 95, "AF3_iPSAE": 0.672858, "Boltz_iPSAE": 0.861613, "AF3_iPTM": 0.86, "Boltz_iPTM": 0.9415633082389832, "Boltz_pLDDT": 0.8342754244804382, "BoltzGen_iPTM": 0.49139, "BoltzGen_RMSD": 1.37471, "BoltzGen_DesignRMSD": 0.57528, "H_Bonds": 0, "Delta_SASA": 801.52588, "Sequence": "TEELRKKTIEACKLAGLSEEEAELAAKYASDADLFGCALAYEAYKKNPENEKIREAVKELARAAVADARARLAA", "sequence_clean": "TEELRKKTIEACKLAGLSEEEAELAAKYASDADLFGCALAYEAYKKNPENEKIREAVKELARAAVADARARLAA"}, {"Design": "full_run_2_boltzgen_rbx1_1545", "Status": "3_Silver", "BoltzGen_Rank": 41, "AF3_iPSAE": 0.671724, "Boltz_iPSAE": 0.916194, "AF3_iPTM": 0.86, "Boltz_iPTM": 0.9632450342178344, "Boltz_pLDDT": 0.7984121441841125, "BoltzGen_iPTM": 0.56209, "BoltzGen_RMSD": 1.55743, "BoltzGen_DesignRMSD": 0.43508, "H_Bonds": 4, "Delta_SASA": 940.8208, "Sequence": "SEVELAEKALEVAKYAVELAKSGDKREAEVALVAAEIALKAAEKLLKSKNPKVVELARKAVELAEEAIKLAKEVLAK", "sequence_clean": "SEVELAEKALEVAKYAVELAKSGDKREAEVALVAAEIALKAAEKLLKSKNPKVVELARKAVELAEEAIKLAKEVLAK"}, {"Design": "full_run_2_boltzgen_rbx1_1791", "Status": "3_Silver", "BoltzGen_Rank": 33, "AF3_iPSAE": 0.60787, "Boltz_iPSAE": 0.891514, "AF3_iPTM": 0.83, "Boltz_iPTM": 0.9518706798553468, "Boltz_pLDDT": 0.8044129014015198, "BoltzGen_iPTM": 0.48811, "BoltzGen_RMSD": 1.349, "BoltzGen_DesignRMSD": 0.48108, "H_Bonds": 2, "Delta_SASA": 1001.10327, "Sequence": "SPLEVAEKAVEVAEYALELAKNAKTESEAEAAKVAAEIALKAAEIVLKVAETEEAKELAKKAIELAKKAIEIAEKKIKEL", "sequence_clean": "SPLEVAEKAVEVAEYALELAKNAKTESEAEAAKVAAEIALKAAEIVLKVAETEEAKELAKKAIELAKKAIEIAEKKIKEL"}, {"Design": "full_run_2_boltzgen_rbx1_1452", "Status": "3_Silver", "BoltzGen_Rank": 97, "AF3_iPSAE": 0.604551, "Boltz_iPSAE": 0.926819, "AF3_iPTM": 0.82, "Boltz_iPTM": 0.9689795970916748, "Boltz_pLDDT": 0.8060240149497986, "BoltzGen_iPTM": 0.46605, "BoltzGen_RMSD": 1.93172, "BoltzGen_DesignRMSD": 0.53074, "H_Bonds": 5, "Delta_SASA": 946.40576, "Sequence": "SFVVEAAKKAVERAEEALKTGDKNLAELAIVLAELVKEAAENSDLSEEDKEEAIKLAEKAKELALKAIKLAEAK", "sequence_clean": "SFVVEAAKKAVERAEEALKTGDKNLAELAIVLAELVKEAAENSDLSEEDKEEAIKLAEKAKELALKAIKLAEAK"}, {"Design": "full_run_2_boltzgen_rbx1_1210", "Status": "4_Bronze", "BoltzGen_Rank": 5, "AF3_iPSAE": 0.811382, "Boltz_iPSAE": 0.502406, "AF3_iPTM": 0.92, "Boltz_iPTM": 0.86981600522995, "Boltz_pLDDT": 0.7554796934127808, "BoltzGen_iPTM": 0.51816, "BoltzGen_RMSD": 1.27251, "BoltzGen_DesignRMSD": 0.41728, "H_Bonds": 6, "Delta_SASA": 1126.35889, "Sequence": "AAEELIAKARELFDKARELIKKATGNLAVEAAELAVEAGAEIRHAEALLKKGEEEKAKELAEKAIELAKKAIELAKAAI", "sequence_clean": "AAEELIAKARELFDKARELIKKATGNLAVEAAELAVEAGAEIRHAEALLKKGEEEKAKELAEKAIELAKKAIELAKAAI"}, {"Design": "full_run_2_boltzgen_rbx1_1895", "Status": "4_Bronze", "BoltzGen_Rank": 81, "AF3_iPSAE": 0.784203, "Boltz_iPSAE": 0.577104, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.8519536256790161, "Boltz_pLDDT": 0.7877786755561829, "BoltzGen_iPTM": 0.53645, "BoltzGen_RMSD": 1.03897, "BoltzGen_DesignRMSD": 0.62101, "H_Bonds": 0, "Delta_SASA": 897.13965, "Sequence": "SEVAKKAIELAEKAIKLAKEGKVVEAARLAVEALALALYALANAKTPEDKALAEKALELAEKALELVKENLAK", "sequence_clean": "SEVAKKAIELAEKAIKLAKEGKVVEAARLAVEALALALYALANAKTPEDKALAEKALELAEKALELVKENLAK"}, {"Design": "full_run_2_boltzgen_rbx1_1302", "Status": "4_Bronze", "BoltzGen_Rank": 56, "AF3_iPSAE": 0.779793, "Boltz_iPSAE": 0.552011, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.8377684950828552, "Boltz_pLDDT": 0.7547186613082886, "BoltzGen_iPTM": 0.48583, "BoltzGen_RMSD": 2.34234, "BoltzGen_DesignRMSD": 0.55701, "H_Bonds": 4, "Delta_SASA": 934.23975, "Sequence": "SAEELIKKAKEGDLEAAVEAVELAANLVQQGKVEEAIKLAEAAIEGAEKVGTPEGECVRIAAEMVIEAAKAK", "sequence_clean": "SAEELIKKAKEGDLEAAVEAVELAANLVQQGKVEEAIKLAEAAIEGAEKVGTPEGECVRIAAEMVIEAAKAK"}, {"Design": "full_run_2_boltzgen_rbx1_0083", "Status": "4_Bronze", "BoltzGen_Rank": 69, "AF3_iPSAE": 0.775494, "Boltz_iPSAE": 0.475117, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.8596324324607849, "Boltz_pLDDT": 0.8303908705711365, "BoltzGen_iPTM": 0.51839, "BoltzGen_RMSD": 1.03214, "BoltzGen_DesignRMSD": 0.6375, "H_Bonds": 2, "Delta_SASA": 957.01074, "Sequence": "SAAEEIAKVAGVSLETAKKVYELAKKGKMEEAFKVLLEESGDPVAAAEAVIVAGAFALEEQARKNRE", "sequence_clean": "SAAEEIAKVAGVSLETAKKVYELAKKGKMEEAFKVLLEESGDPVAAAEAVIVAGAFALEEQARKNRE"}, {"Design": "full_run_2_boltzgen_rbx1_1009", "Status": "4_Bronze", "BoltzGen_Rank": 10, "AF3_iPSAE": 0.772604, "Boltz_iPSAE": 0.395864, "AF3_iPTM": 0.91, "Boltz_iPTM": 0.790196418762207, "Boltz_pLDDT": 0.7342544794082642, "BoltzGen_iPTM": 0.57693, "BoltzGen_RMSD": 2.29437, "BoltzGen_DesignRMSD": 0.52088, "H_Bonds": 4, "Delta_SASA": 1066.26562, "Sequence": "SPEELVKEAEKALKELDKELAEEVLKKAVELALEALKAGDEETALKAIEACGLAAAAIYKAELKEK", "sequence_clean": "SPEELVKEAEKALKELDKELAEEVLKKAVELALEALKAGDEETALKAIEACGLAAAAIYKAELKEK"}, {"Design": "full_run_2_boltzgen_rbx1_1937", "Status": "4_Bronze", "BoltzGen_Rank": 60, "AF3_iPSAE": 0.752787, "Boltz_iPSAE": 0.464927, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.818001925945282, "Boltz_pLDDT": 0.7776359915733337, "BoltzGen_iPTM": 0.45203, "BoltzGen_RMSD": 1.65645, "BoltzGen_DesignRMSD": 1.7047, "H_Bonds": 8, "Delta_SASA": 1004.19458, "Sequence": "AAEAKALVEKAAKLVDKAKELVLQGKAEEAIKLAEEAIELAKKAIELSDDPEVIKAARLVIGGAEEVIAAAKRVAEKLA", "sequence_clean": "AAEAKALVEKAAKLVDKAKELVLQGKAEEAIKLAEEAIELAKKAIELSDDPEVIKAARLVIGGAEEVIAAAKRVAEKLA"}, {"Design": "full_run_2_boltzgen_rbx1_0181", "Status": "4_Bronze", "BoltzGen_Rank": 40, "AF3_iPSAE": 0.739129, "Boltz_iPSAE": 0.17276, "AF3_iPTM": 0.9, "Boltz_iPTM": 0.6544190049171448, "Boltz_pLDDT": 0.7399870157241821, "BoltzGen_iPTM": 0.48911, "BoltzGen_RMSD": 1.54164, "BoltzGen_DesignRMSD": 0.37645, "H_Bonds": 2, "Delta_SASA": 941.50342, "Sequence": "SELVKIAKEAAKKGDICLAGAAILYALEVKKDYEEAAAAAEAAIKAAEEAGATEEAIEVLRELYELAK", "sequence_clean": "SELVKIAKEAAKKGDICLAGAAILYALEVKKDYEEAAAAAEAAIKAAEEAGATEEAIEVLRELYELAK"}, {"Design": "full_run_2_boltzgen_rbx1_0560", "Status": "4_Bronze", "BoltzGen_Rank": 30, "AF3_iPSAE": 0.713336, "Boltz_iPSAE": 0.517858, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.881160318851471, "Boltz_pLDDT": 0.7895455956459045, "BoltzGen_iPTM": 0.54522, "BoltzGen_RMSD": 2.18067, "BoltzGen_DesignRMSD": 0.45146, "H_Bonds": 2, "Delta_SASA": 1008.22168, "Sequence": "SWVEKAVELLKEGKVKEAAELAIKAAEEAGNEEAIELAKKAIETGDKKAAAEAVVLAGGALLRKQAEEA", "sequence_clean": "SWVEKAVELLKEGKVKEAAELAIKAAEEAGNEEAIELAKKAIETGDKKAAAEAVVLAGGALLRKQAEEA"}, {"Design": "full_run_2_boltzgen_rbx1_1338", "Status": "4_Bronze", "BoltzGen_Rank": 27, "AF3_iPSAE": 0.713245, "Boltz_iPSAE": 0.557736, "AF3_iPTM": 0.89, "Boltz_iPTM": 0.8877519965171814, "Boltz_pLDDT": 0.76310133934021, "BoltzGen_iPTM": 0.49622, "BoltzGen_RMSD": 2.08479, "BoltzGen_DesignRMSD": 0.38405, "H_Bonds": 5, "Delta_SASA": 960.81299, "Sequence": "SPVELAEKAVELAKEGRVEEALELADKAVELAAEIAEENPEEARRAAELATEAGALAAGASYKAK", "sequence_clean": "SPVELAEKAVELAKEGRVEEALELADKAVELAAEIAEENPEEARRAAELATEAGALAAGASYKAK"}, {"Design": "full_run_2_boltzgen_rbx1_0967", "Status": "4_Bronze", "BoltzGen_Rank": 20, "AF3_iPSAE": 0.675164, "Boltz_iPSAE": 0.015992, "AF3_iPTM": 0.86, "Boltz_iPTM": 0.4586340487003326, "Boltz_pLDDT": 0.7510069608688354, "BoltzGen_iPTM": 0.54335, "BoltzGen_RMSD": 1.11148, "BoltzGen_DesignRMSD": 0.9101, "H_Bonds": 8, "Delta_SASA": 1399.73584, "Sequence": "GNSKVEVEVKVEGDKVTATVTVTLPDGTVITVTVTLDKETGEVLEVEVEGPVSEEAKEDALKAAEIAAEEHKDLSAEQRAAVAAGAAATVALAELLRRS", "sequence_clean": "GNSKVEVEVKVEGDKVTATVTVTLPDGTVITVTVTLDKETGEVLEVEVEGPVSEEAKEDALKAAEIAAEEHKDLSAEQRAAVAAGAAATVALAELLRRS"}, {"Design": "full_run_2_boltzgen_rbx1_0685", "Status": "4_Bronze", "BoltzGen_Rank": 63, "AF3_iPSAE": 0.608768, "Boltz_iPSAE": 0.414324, "AF3_iPTM": 0.85, "Boltz_iPTM": 0.8693225383758545, "Boltz_pLDDT": 0.8416461944580078, "BoltzGen_iPTM": 0.49128, "BoltzGen_RMSD": 2.4133, "BoltzGen_DesignRMSD": 0.44759, "H_Bonds": 4, "Delta_SASA": 892.46973, "Sequence": "SLAEEAIALASPEAKPLVEKAAELAEKGKVEEAFKLAEEAAKLGDGEAACLVCLHAVEEARRLANR", "sequence_clean": "SLAEEAIALASPEAKPLVEKAAELAEKGKVEEAFKLAEEAAKLGDGEAACLVCLHAVEEARRLANR"}, {"Design": "full_run_2_boltzgen_rbx1_0172", "Status": "4_Bronze", "BoltzGen_Rank": 36, "AF3_iPSAE": 0.594657, "Boltz_iPSAE": 0.88757, "AF3_iPTM": 0.83, "Boltz_iPTM": 0.9572198390960692, "Boltz_pLDDT": 0.8624513149261475, "BoltzGen_iPTM": 0.54703, "BoltzGen_RMSD": 1.42402, "BoltzGen_DesignRMSD": 0.84871, "H_Bonds": 3, "Delta_SASA": 948.45947, "Sequence": "SAEEAIELAKKAIEIAKKVSEELVEKAKEVIKKAEEAIKTGDENLAELAKVGAEIYLKAAKKLLEKKK", "sequence_clean": "SAEEAIELAKKAIEIAKKVSEELVEKAKEVIKKAEEAIKTGDENLAELAKVGAEIYLKAAKKLLEKKK"}, {"Design": "full_run_1_boltzgen_rbx1_0445", "Status": "4_Bronze", "BoltzGen_Rank": 98, "AF3_iPSAE": 0.580019, "Boltz_iPSAE": 0.823677, "AF3_iPTM": 0.84, "Boltz_iPTM": 0.9370766878128052, "Boltz_pLDDT": 0.7611594200134277, "BoltzGen_iPTM": 0.45656, "BoltzGen_RMSD": 2.07493, "BoltzGen_DesignRMSD": 0.72366, "H_Bonds": 0, "Delta_SASA": 783.87256, "Sequence": "GVIVLENVSAEDACLALAELHFIEKLRIERAVVTNSKGEKFEGEGFEGAAEAVRKAAKLGPVKKVEIYT", "sequence_clean": "GVIVLENVSAEDACLALAELHFIEKLRIERAVVTNSKGEKFEGEGFEGAAEAVRKAAKLGPVKKVEIYT"}, {"Design": "full_run_2_boltzgen_rbx1_1878", "Status": "4_Bronze", "BoltzGen_Rank": 100, "AF3_iPSAE": 0.572818, "Boltz_iPSAE": 0.843718, "AF3_iPTM": 0.84, "Boltz_iPTM": 0.9495757222175598, "Boltz_pLDDT": 0.8902854323387146, "BoltzGen_iPTM": 0.43721, "BoltzGen_RMSD": 1.83452, "BoltzGen_DesignRMSD": 0.77084, "H_Bonds": 5, "Delta_SASA": 885.54932, "Sequence": "SAEEALELADKARELALLAGCECAANLAVEAGGLAVRAANTGDEEDAEKAIKLAKKGIELAEKAIKEKL", "sequence_clean": "SAEEALELADKARELALLAGCECAANLAVEAGGLAVRAANTGDEEDAEKAIKLAKKGIELAEKAIKEKL"}, {"Design": "full_run_2_boltzgen_rbx1_1339", "Status": "4_Bronze", "BoltzGen_Rank": 26, "AF3_iPSAE": 0.542815, "Boltz_iPSAE": 0.820557, "AF3_iPTM": 0.83, "Boltz_iPTM": 0.940065324306488, "Boltz_pLDDT": 0.8169887065887451, "BoltzGen_iPTM": 0.48432, "BoltzGen_RMSD": 2.47414, "BoltzGen_DesignRMSD": 0.5054, "H_Bonds": 3, "Delta_SASA": 960.85889, "Sequence": "SAEEAIELAKKALELGKDNCDVVEVAKEAIALAEAALAGRATAQEEELAVFKAEIALRAAELLKK", "sequence_clean": "SAEEAIELAKKALELGKDNCDVVEVAKEAIALAEAALAGRATAQEEELAVFKAEIALRAAELLKK"}, {"Design": "full_run_1_boltzgen_rbx1_0611", "Status": "4_Bronze", "BoltzGen_Rank": 80, "AF3_iPSAE": 0.538927, "Boltz_iPSAE": 0.870097, "AF3_iPTM": 0.79, "Boltz_iPTM": 0.937779664993286, "Boltz_pLDDT": 0.8998607993125916, "BoltzGen_iPTM": 0.44857, "BoltzGen_RMSD": 2.29972, "BoltzGen_DesignRMSD": 0.45209, "H_Bonds": 3, "Delta_SASA": 871.10059, "Sequence": "GELQELLKKALELLEKALEAIKAGKVEEAIELLREAIKLLEKAAALGNKLAAAALRAVEGALDALERGNLDLAEFNLELAIKLLKKAL", "sequence_clean": "GELQELLKKALELLEKALEAIKAGKVEEAIELLREAIKLLEKAAALGNKLAAAALRAVEGALDALERGNLDLAEFNLELAIKLLKKAL"}, {"Design": "full_run_2_boltzgen_rbx1_0664", "Status": "4_Bronze", "BoltzGen_Rank": 31, "AF3_iPSAE": 0.537623, "Boltz_iPSAE": 0.899722, "AF3_iPTM": 0.8, "Boltz_iPTM": 0.9551699757575988, "Boltz_pLDDT": 0.8187532424926758, "BoltzGen_iPTM": 0.53654, "BoltzGen_RMSD": 1.24013, "BoltzGen_DesignRMSD": 0.89036, "H_Bonds": 2, "Delta_SASA": 1054.93848, "Sequence": "IPEKAIEVAEEAIKLAKQGNAELAAVRAIIAARAAAILSGKFEKAEEAIKLAEEAIKTGDVEKAIKAAEIAIELAKEALEKLK", "sequence_clean": "IPEKAIEVAEEAIKLAKQGNAELAAVRAIIAARAAAILSGKFEKAEEAIKLAEEAIKTGDVEKAIKAAEIAIELAKEALEKLK"}, {"Design": "full_run_2_boltzgen_rbx1_0977", "Status": "4_Bronze", "BoltzGen_Rank": 72, "AF3_iPSAE": 0.505104, "Boltz_iPSAE": 0.406755, "AF3_iPTM": 0.79, "Boltz_iPTM": 0.8367919921875, "Boltz_pLDDT": 0.7889062762260437, "BoltzGen_iPTM": 0.54787, "BoltzGen_RMSD": 1.8561, "BoltzGen_DesignRMSD": 0.62388, "H_Bonds": 5, "Delta_SASA": 869.54639, "Sequence": "SAAERAGREAYERALEIARELGLSDEQAEEVARIAAEVARGLVEEGLSVEAAVETAVGIGKAYALGLARAQAAR", "sequence_clean": "SAAERAGREAYERALEIARELGLSDEQAEEVARIAAEVARGLVEEGLSVEAAVETAVGIGKAYALGLARAQAAR"}, {"Design": "full_run_2_boltzgen_rbx1_1542", "Status": "4_Bronze", "BoltzGen_Rank": 32, "AF3_iPSAE": 0.405943, "Boltz_iPSAE": 0.886819, "AF3_iPTM": 0.75, "Boltz_iPTM": 0.9543879628181458, "Boltz_pLDDT": 0.8691987991333008, "BoltzGen_iPTM": 0.49315, "BoltzGen_RMSD": 1.55418, "BoltzGen_DesignRMSD": 0.53462, "H_Bonds": 2, "Delta_SASA": 1107.43799, "Sequence": "SLKEIKRAAALRAAEVAGVSRETAEECAEKAESPLEACACVAKKAIDAGASYETALAAMAAGAEVARELARKLLEEQ", "sequence_clean": "SLKEIKRAAALRAAEVAGVSRETAEECAEKAESPLEACACVAKKAIDAGASYETALAAMAAGAEVARELARKLLEEQ"}, {"Design": "full_run_2_boltzgen_rbx1_0522", "Status": "4_Bronze", "BoltzGen_Rank": 83, "AF3_iPSAE": 0.378661, "Boltz_iPSAE": 0.692512, "AF3_iPTM": 0.76, "Boltz_iPTM": 0.904367208480835, "Boltz_pLDDT": 0.7715737223625183, "BoltzGen_iPTM": 0.52115, "BoltzGen_RMSD": 2.17777, "BoltzGen_DesignRMSD": 0.54351, "H_Bonds": 0, "Delta_SASA": 849.39355, "Sequence": "GPLAAAELAKIAAEIALKAAKAGQNPEKALELAKFAIELAEYALKTSDDPEAKKLAEEAIKLGEEAIKLAEKNLA", "sequence_clean": "GPLAAAELAKIAAEIALKAAKAGQNPEKALELAKFAIELAEYALKTSDDPEAKKLAEEAIKLGEEAIKLAEKNLA"}, {"Design": "full_run_2_boltzgen_rbx1_0179", "Status": "4_Bronze", "BoltzGen_Rank": 96, "AF3_iPSAE": 0.281033, "Boltz_iPSAE": 0.770749, "AF3_iPTM": 0.73, "Boltz_iPTM": 0.9256397485733032, "Boltz_pLDDT": 0.7772844433784485, "BoltzGen_iPTM": 0.4548, "BoltzGen_RMSD": 1.30725, "BoltzGen_DesignRMSD": 1.91369, "H_Bonds": 4, "Delta_SASA": 833.70923, "Sequence": "AGDVALVRAEIALEAAKKAKTAEAAEEAIKLAEEALKIAKEFGNEEAIKLAEEAIKLAEKKIKEVEAK", "sequence_clean": "AGDVALVRAEIALEAAKKAKTAEAAEEAIKLAEEALKIAKEFGNEEAIKLAEEAIKLAEKKIKEVEAK"}, {"Design": "full_run_2_boltzgen_rbx1_0654", "Status": "4_Bronze", "BoltzGen_Rank": 50, "AF3_iPSAE": 0.221054, "Boltz_iPSAE": 0.648937, "AF3_iPTM": 0.63, "Boltz_iPTM": 0.8585679531097412, "Boltz_pLDDT": 0.7536643743515015, "BoltzGen_iPTM": 0.52977, "BoltzGen_RMSD": 1.04189, "BoltzGen_DesignRMSD": 0.89105, "H_Bonds": 3, "Delta_SASA": 901.06836, "Sequence": "SLGDLVLRLCQERGLSAAAILAAGFAAMAIDLGKSEEEAIELAIEVGKALGVSEEEAEEAARVAIEAVEEVEKLRA", "sequence_clean": "SLGDLVLRLCQERGLSAAAILAAGFAAMAIDLGKSEEEAIELAIEVGKALGVSEEEAEEAARVAIEAVEEVEKLRA"}, {"Design": "full_run_2_boltzgen_rbx1_0136", "Status": "4_Bronze", "BoltzGen_Rank": 76, "AF3_iPSAE": 0.197144, "Boltz_iPSAE": 0.657887, "AF3_iPTM": 0.55, "Boltz_iPTM": 0.896094024181366, "Boltz_pLDDT": 0.8078596591949463, "BoltzGen_iPTM": 0.45623, "BoltzGen_RMSD": 1.52652, "BoltzGen_DesignRMSD": 0.54318, "H_Bonds": 6, "Delta_SASA": 1116.13965, "Sequence": "SELAEKALELAVEAARTGDPEKVIEAAELVIEAAKELGCEEAVELAEEAIKLAKEALENPAERAALVAEGAVLVGAAALRVNVAYEKKK", "sequence_clean": "SELAEKALELAVEAARTGDPEKVIEAAELVIEAAKELGCEEAVELAEEAIKLAKEALENPAERAALVAEGAVLVGAAALRVNVAYEKKK"}, {"Design": "full_run_2_boltzgen_rbx1_1682", "Status": "4_Bronze", "BoltzGen_Rank": 53, "AF3_iPSAE": 0.030764, "Boltz_iPSAE": 0.868509, "AF3_iPTM": 0.5, "Boltz_iPTM": 0.9475294947624208, "Boltz_pLDDT": 0.8315877318382263, "BoltzGen_iPTM": 0.46919, "BoltzGen_RMSD": 1.89099, "BoltzGen_DesignRMSD": 0.58491, "H_Bonds": 1, "Delta_SASA": 978.85107, "Sequence": "SLAEEAMKLAVEGGKTGDPELVIKAAELVIEAAEKLEGTEEAIELAKKAIELAEKAKETGDKLLVAEAAVLVGIAAVIVERAAK", "sequence_clean": "SLAEEAMKLAVEGGKTGDPELVIKAAELVIEAAEKLEGTEEAIELAKKAIELAEKAKETGDKLLVAEAAVLVGIAAVIVERAAK"}, {"Design": "full_run_2_boltzgen_rbx1_1510", "Status": "4_Bronze", "BoltzGen_Rank": 85, "AF3_iPSAE": 0.013093, "Boltz_iPSAE": 0.84281, "AF3_iPTM": 0.28, "Boltz_iPTM": 0.938398003578186, "Boltz_pLDDT": 0.8362626433372498, "BoltzGen_iPTM": 0.49122, "BoltzGen_RMSD": 1.64149, "BoltzGen_DesignRMSD": 0.57587, "H_Bonds": 0, "Delta_SASA": 959.49414, "Sequence": "GAEEVAREKAIEAAREAGLTEEAAELVGKAAVLALKGKIEEAVEYVLKAAELSGNVQAAADAVVVGAAAGVRVSLEE", "sequence_clean": "GAEEVAREKAIEAAREAGLTEEAAELVGKAAVLALKGKIEEAVEYVLKAAELSGNVQAAADAVVVGAAAGVRVSLEE"}, {"Design": "prod_03_clean_boltzgen_rbx1_025", "Status": "4_Bronze", "BoltzGen_Rank": 77, "AF3_iPSAE": 0.01233, "Boltz_iPSAE": 0.548716, "AF3_iPTM": 0.23, "Boltz_iPTM": 0.8699281811714172, "Boltz_pLDDT": 0.7716510891914368, "BoltzGen_iPTM": 0.46658, "BoltzGen_RMSD": 2.06562, "BoltzGen_DesignRMSD": 0.67135, "H_Bonds": 3, "Delta_SASA": 971.91992, "Sequence": "KYLVRHFVAGEEVLSVELKSASPQEIYDETGVSLEVAEALVAAIEAGKKGAVVNLATGEVTAFDTPEEALAAARASDYPVVVLCKL", "sequence_clean": "KYLVRHFVAGEEVLSVELKSASPQEIYDETGVSLEVAEALVAAIEAGKKGAVVNLATGEVTAFDTPEEALAAARASDYPVVVLCKL"}, {"Design": "full_run_1_boltzgen_rbx1_0063", "Status": "4_Bronze", "BoltzGen_Rank": 42, "AF3_iPSAE": 0.010305, "Boltz_iPSAE": 0.887393, "AF3_iPTM": 0.19, "Boltz_iPTM": 0.9530230164527892, "Boltz_pLDDT": 0.8631431460380554, "BoltzGen_iPTM": 0.52494, "BoltzGen_RMSD": 2.22634, "BoltzGen_DesignRMSD": 0.4866, "H_Bonds": 5, "Delta_SASA": 931.81592, "Sequence": "MEEEVERYLDEIREILLEAGLPEGLADAVVEGLRMALSKLKNPVAAAKELLEHVKELKAAGVPAGEIADKAVDYAKELVKKD", "sequence_clean": "MEEEVERYLDEIREILLEAGLPEGLADAVVEGLRMALSKLKNPVAAAKELLEHVKELKAAGVPAGEIADKAVDYAKELVKKD"}, {"Design": "full_run_2_boltzgen_rbx1_0784", "Status": "4_Bronze", "BoltzGen_Rank": 25, "AF3_iPSAE": 0.0, "Boltz_iPSAE": 0.805477, "AF3_iPTM": 0.18, "Boltz_iPTM": 0.94489723443985, "Boltz_pLDDT": 0.8369777798652649, "BoltzGen_iPTM": 0.51965, "BoltzGen_RMSD": 1.92829, "BoltzGen_DesignRMSD": 0.75539, "H_Bonds": 4, "Delta_SASA": 1020.78369, "Sequence": "SKIEEAARKAVELCKEGRVEEAAAVLEEAGATPEAARGAAEAAAVLIRLGREEAAVEVAKVVVEMSREARARL", "sequence_clean": "SKIEEAARKAVELCKEGRVEEAAAVLEEAGATPEAARGAAEAAAVLIRLGREEAAVEVAKVVVEMSREARARL"}, {"Design": "full_run_2_boltzgen_rbx1_0743", "Status": "5_Fail", "BoltzGen_Rank": 12, "AF3_iPSAE": 0.29292, "Boltz_iPSAE": 0.49359, "AF3_iPTM": 0.59, "Boltz_iPTM": 0.8697095513343811, "Boltz_pLDDT": 0.8517470955848694, "BoltzGen_iPTM": 0.51374, "BoltzGen_RMSD": 2.12162, "BoltzGen_DesignRMSD": 0.7892, "H_Bonds": 3, "Delta_SASA": 1077.6582, "Sequence": "AEKAIELAKTKKAEKVQEAANIVIDLANEAARLGGDPELCLEACVLATEAATLAKKGEVEEAAELVIKAAELVKEALAQA", "sequence_clean": "AEKAIELAKTKKAEKVQEAANIVIDLANEAARLGGDPELCLEACVLATEAATLAKKGEVEEAAELVIKAAELVKEALAQA"}, {"Design": "full_run_2_boltzgen_rbx1_0383", "Status": "5_Fail", "BoltzGen_Rank": 55, "AF3_iPSAE": 0.253062, "Boltz_iPSAE": 0.403008, "AF3_iPTM": 0.69, "Boltz_iPTM": 0.8081260323524475, "Boltz_pLDDT": 0.8024945855140686, "BoltzGen_iPTM": 0.51245, "BoltzGen_RMSD": 1.78807, "BoltzGen_DesignRMSD": 0.69004, "H_Bonds": 3, "Delta_SASA": 984.02148, "Sequence": "SLEDALKAAELVIEAGGLVVRAQATGDLAAAEKAIELAKEAIELAEKAIAAGVPGAEAILEAAKEILAHAEALLKELSK", "sequence_clean": "SLEDALKAAELVIEAGGLVVRAQATGDLAAAEKAIELAKEAIELAEKAIAAGVPGAEAILEAAKEILAHAEALLKELSK"}, {"Design": "full_run_1_boltzgen_rbx1_0467", "Status": "5_Fail", "BoltzGen_Rank": 59, "AF3_iPSAE": 0.138637, "Boltz_iPSAE": 0.01709, "AF3_iPTM": 0.58, "Boltz_iPTM": 0.4434723258018493, "Boltz_pLDDT": 0.7766322493553162, "BoltzGen_iPTM": 0.45684, "BoltzGen_RMSD": 2.14921, "BoltzGen_DesignRMSD": 0.46686, "H_Bonds": 5, "Delta_SASA": 939.43408, "Sequence": "ATATAIVELTVHGPNGELAKFTAELVGEGLKKRLLEVPGVLKVEYEVEVSPDGTSATVKLTVTCENEAAAEAAAAAAREFAEANKDTVDELKVEIV", "sequence_clean": "ATATAIVELTVHGPNGELAKFTAELVGEGLKKRLLEVPGVLKVEYEVEVSPDGTSATVKLTVTCENEAAAEAAAAAAREFAEANKDTVDELKVEIV"}, {"Design": "full_run_2_boltzgen_rbx1_0292", "Status": "5_Fail", "BoltzGen_Rank": 87, "AF3_iPSAE": 0.110636, "Boltz_iPSAE": 0.123503, "AF3_iPTM": 0.51, "Boltz_iPTM": 0.5920588970184326, "Boltz_pLDDT": 0.7695391774177551, "BoltzGen_iPTM": 0.46706, "BoltzGen_RMSD": 2.48902, "BoltzGen_DesignRMSD": 0.62699, "H_Bonds": 0, "Delta_SASA": 888.42114, "Sequence": "SEAAELVLEAAKLAGGEAAVVAAGEAIGLVREGREEEALAAAVEAMKKFGGASEEEAREAAELCVEAAKIIVEELE", "sequence_clean": "SEAAELVLEAAKLAGGEAAVVAAGEAIGLVREGREEEALAAAVEAMKKFGGASEEEAREAAELCVEAAKIIVEELE"}, {"Design": "full_run_1_boltzgen_rbx1_0666", "Status": "5_Fail", "BoltzGen_Rank": 46, "AF3_iPSAE": 0.096422, "Boltz_iPSAE": 0.497989, "AF3_iPTM": 0.5, "Boltz_iPTM": 0.8072149157524109, "Boltz_pLDDT": 0.7634537816047668, "BoltzGen_iPTM": 0.51493, "BoltzGen_RMSD": 2.27175, "BoltzGen_DesignRMSD": 0.71524, "H_Bonds": 3, "Delta_SASA": 1093.96436, "Sequence": "SGKEEALFETGFALLELNKGLSEEQVKAILAKAAEAVGCEVDLSDLWKAAAELLRHLATKSTEEQLKALETMLAAAKEVGASEEALAHLEKAIEAL", "sequence_clean": "SGKEEALFETGFALLELNKGLSEEQVKAILAKAAEAVGCEVDLSDLWKAAAELLRHLATKSTEEQLKALETMLAAAKEVGASEEALAHLEKAIEAL"}, {"Design": "full_run_2_boltzgen_rbx1_1457", "Status": "5_Fail", "BoltzGen_Rank": 88, "AF3_iPSAE": 0.011191, "Boltz_iPSAE": 0.205534, "AF3_iPTM": 0.24, "Boltz_iPTM": 0.7272597551345825, "Boltz_pLDDT": 0.7186563014984131, "BoltzGen_iPTM": 0.46637, "BoltzGen_RMSD": 1.39739, "BoltzGen_DesignRMSD": 0.69972, "H_Bonds": 0, "Delta_SASA": 910.21851, "Sequence": "SAVEIAEKAVKIAEEAAKKGDVEKATEACAIASRAVAEALAAGDEEEAAKCQELLDKAVEYLKKAVEEALKKKK", "sequence_clean": "SAVEIAEKAVKIAEEAAKKGDVEKATEACAIASRAVAEALAAGDEEEAAKCQELLDKAVEYLKKAVEEALKKKK"}];
+    </script>
+
+    <script>
+        let data = [];
+        let selectedIndex = null;
+        let hoveredIndex = null;
+        
+        const plots = [
+            { id: 'canvas_ipsae', xKey: 'AF3_iPSAE', yKey: 'Boltz_iPSAE', xLabel: 'AF3 iPSAE', yLabel: 'Boltz2 iPSAE' },
+            { id: 'canvas_iptm', xKey: 'AF3_iPTM', yKey: 'Boltz_iPTM', xLabel: 'AF3 iPTM', yLabel: 'Boltz2 iPTM' },
+            { id: 'canvas_boltz_check', xKey: 'Boltz_iPSAE', yKey: 'Boltz_iPTM', xLabel: 'Boltz2 iPSAE', yLabel: 'Boltz2 iPTM' },
+            { id: 'canvas_af3_check', xKey: 'AF3_iPSAE', yKey: 'AF3_iPTM', xLabel: 'AF3 iPSAE', yLabel: 'AF3 iPTM' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyFilters(); 
+            
+            setTimeout(() => {
+                plots.forEach(p => {
+                    p.el = document.getElementById(p.id);
+                    p.ctx = p.el.getContext('2d');
+                    setupInteraction(p);
+                });
+                requestAnimationFrame(renderLoop);
+            }, 100);
+        });
+
+        window.addEventListener('resize', () => requestAnimationFrame(renderLoop));
+
+        // --- FILTER LOGIC ---
+        const tierToggles = document.querySelectorAll('.tier-toggle');
+        tierToggles.forEach(t => t.addEventListener('change', applyFilters));
+        document.getElementById('sortSelect').addEventListener('change', applyFilters);
+        document.getElementById('tableSearch').addEventListener('input', applyFilters);
+
+        function applyFilters() {
+            const search = document.getElementById('tableSearch').value.toLowerCase();
+            const sortVal = document.getElementById('sortSelect').value;
+            const checkedTiers = Array.from(tierToggles).filter(t => t.checked).map(t => t.value);
+
+            data = RAW_DATA.filter(d => {
+                const matchesSearch = d.Design.toLowerCase().includes(search);
+                const matchesTier = checkedTiers.some(tier => d.Status.includes(tier));
+                return matchesSearch && matchesTier;
+            });
+
+            if (sortVal !== 'default') {
+                let col = '';
+                if(sortVal === 'af3_ipsae') col = 'AF3_iPSAE';
+                if(sortVal === 'boltz_ipsae') col = 'Boltz_iPSAE';
+                if(sortVal === 'af3_iptm') col = 'AF3_iPTM';
+                if(sortVal === 'boltz_iptm') col = 'Boltz_iPTM';
+                data.sort((a, b) => (b[col] || 0) - (a[col] || 0));
+            }
+            
+            document.getElementById('totalCount').innerText = data.length;
+            renderTable();
+        }
+
+        // --- RENDER TABLE ---
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = data.map((d, i) => {
+                let statusColor = "text-slate-400";
+                if(d.Status.includes('Platinum')) statusColor = "text-emerald-400 font-bold";
+                else if(d.Status.includes('Gold')) statusColor = "text-blue-400";
+                else if(d.Status.includes('Silver')) statusColor = "text-purple-400";
+                else if(d.Status.includes('Bronze')) statusColor = "text-orange-400";
+                else if(d.Status.includes('Fail')) statusColor = "text-red-400";
+                
+                const originalIndex = RAW_DATA.indexOf(d);
+                const bgRank = d.BoltzGen_Rank || '-';
+
+                return `
+                    <tr class="hover:bg-slate-700/40 cursor-pointer transition-colors" onclick="selectDesign(${originalIndex})">
+                        <td class="px-4 py-3 text-center font-mono text-slate-500">${bgRank}</td>
+                        <td class="px-4 py-3 whitespace-nowrap"><span class="${statusColor} text-[10px]">${d.Status.split('_')[1] || d.Status}</span></td>
+                        <td class="px-6 py-3 font-mono text-slate-200 text-xs">${d.Design}</td>
+                        <td class="px-4 py-3 text-right font-mono text-blue-300">${(d.AF3_iPSAE || 0).toFixed(3)}</td>
+                        <td class="px-4 py-3 text-right font-mono text-purple-300">${(d.Boltz_iPSAE || 0).toFixed(3)}</td>
+                        <td class="px-4 py-3 text-right font-mono text-slate-400">${(d.AF3_iPTM || 0).toFixed(2)}</td>
+                        <td class="px-4 py-3 text-right font-mono text-slate-400">${(d.Boltz_iPTM || 0).toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // --- PLOTS ---
+        function renderLoop() {
+            plots.forEach(p => drawPlot(p));
+            requestAnimationFrame(renderLoop);
+        }
+
+        function drawPlot(plot) {
+            if(!plot.ctx) return;
+            const ctx = plot.ctx;
+            const rect = plot.el.getBoundingClientRect();
+            if (plot.el.width !== rect.width || plot.el.height !== rect.height) {
+                plot.el.width = rect.width;
+                plot.el.height = rect.height;
+            }
+            
+            const w = plot.el.width;
+            const h = plot.el.height;
+            const pad = 70; 
+
+            // Clear
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, w, h);
+
+            // Grid
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 1; ctx.beginPath();
+            for(let i=0; i<=5; i++) {
+                const val = (i/5);
+                const pos = pad + val * (w - 2*pad);
+                const yPos = h - pad - val * (h - 2*pad);
+                ctx.moveTo(pos, pad); ctx.lineTo(pos, h - pad); 
+                ctx.moveTo(pad, yPos); ctx.lineTo(w - pad, yPos); 
+                
+                ctx.fillStyle = '#64748b'; ctx.font = '12px "JetBrains Mono"';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                ctx.fillText(val.toFixed(1), pos, h - pad + 8);
+                ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                ctx.fillText(val.toFixed(1), pad - 12, yPos);
+            }
+            ctx.stroke();
+
+            // Diagonal
+            ctx.strokeStyle = '#475569';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(pad, h - pad);
+            ctx.lineTo(w - pad, pad);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Labels
+            ctx.fillStyle = '#cbd5e1'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(plot.xLabel, w/2, h - 10);
+            ctx.save(); ctx.translate(20, h/2); ctx.rotate(-Math.PI/2);
+            ctx.fillText(plot.yLabel, 0, 0); ctx.restore();
+
+            // Points
+            data.forEach((d) => {
+                const xVal = d[plot.xKey] || 0;
+                const yVal = d[plot.yKey] || 0;
+                const x = pad + xVal * (w - 2*pad);
+                const y = h - pad - yVal * (h - 2*pad);
+                
+                const isSelected = (RAW_DATA.indexOf(d) === selectedIndex);
+                const isHovered = (RAW_DATA.indexOf(d) === hoveredIndex);
+
+                const radius = isSelected ? 8 : (isHovered ? 6 : 4);
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                
+                // Color based on tier
+                let color = '#ef4444'; 
+                if(d.Status.includes('Platinum')) color = '#10b981';
+                else if(d.Status.includes('Gold')) color = '#3b82f6';
+                else if(d.Status.includes('Silver')) color = '#a855f7';
+                else if(d.Status.includes('Bronze')) color = '#f59e0b';
+
+                ctx.fillStyle = color;
+                
+                if (isSelected || isHovered) {
+                    ctx.shadowColor = 'white'; ctx.shadowBlur = 10; ctx.strokeStyle = 'white'; ctx.lineWidth = 2;
+                    ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+                } else {
+                    ctx.globalAlpha = 0.8; ctx.fill(); ctx.globalAlpha = 1.0;
+                }
+            });
+        }
+
+        function setupInteraction(plot) {
+            const cvs = plot.el;
+            cvs.addEventListener('mousemove', e => {
+                const rect = cvs.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const my = e.clientY - rect.top;
+                
+                const w = cvs.width; const h = cvs.height; const pad = 70; 
+                const iw = w - 2*pad; const ih = h - 2*pad;
+
+                let closest = null; let minDist = 15;
+
+                data.forEach((d) => {
+                    const x = pad + (d[plot.xKey]||0) * iw;
+                    const y = h - pad - (d[plot.yKey]||0) * ih;
+                    const dist = Math.hypot(mx - x, my - y);
+                    if(dist < minDist) { 
+                        minDist = dist; 
+                        closest = RAW_DATA.indexOf(d); 
+                    }
+                });
+
+                if(closest !== hoveredIndex) {
+                    hoveredIndex = closest;
+                    cvs.style.cursor = closest !== null ? 'pointer' : 'default';
+                }
+            });
+            cvs.addEventListener('mouseleave', () => hoveredIndex = null);
+            cvs.addEventListener('click', () => {
+                if(hoveredIndex !== null) selectDesign(hoveredIndex);
+            });
+        }
+
+        function selectDesign(idx) {
+            selectedIndex = idx;
+            const d = RAW_DATA[idx];
+            document.getElementById('detailsPlaceholder').classList.add('hidden');
+            document.getElementById('detailsContent').classList.remove('hidden');
+            document.getElementById('detailsContent').classList.add('flex');
+            
+            document.getElementById('detailTitle').innerText = d.Design;
+            
+            const rankBadge = document.getElementById('detailRankBadge');
+            rankBadge.innerText = 'Rank #' + (d.BoltzGen_Rank || '?');
+            
+            const badge = document.getElementById('detailStatusBadge');
+            let bClass = "bg-red-500/20 text-red-300 border-red-500/50";
+            if(d.Status.includes('Platinum')) bClass = "bg-emerald-500/20 text-emerald-300 border-emerald-500/50";
+            else if(d.Status.includes('Gold')) bClass = "bg-blue-500/20 text-blue-300 border-blue-500/50";
+            else if(d.Status.includes('Silver')) bClass = "bg-purple-500/20 text-purple-300 border-purple-500/50";
+            else if(d.Status.includes('Bronze')) bClass = "bg-orange-500/20 text-orange-300 border-orange-500/50";
+            badge.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${bClass}`;
+            badge.innerText = d.Status.split('_')[1] || d.Status;
+
+            document.getElementById('val_af3_iptm').innerText = (d.AF3_iPTM || 0).toFixed(2);
+            document.getElementById('val_af3_ipsae').innerText = (d.AF3_iPSAE || 0).toFixed(3);
+            document.getElementById('val_boltz_iptm').innerText = (d.Boltz_iPTM || 0).toFixed(2);
+            document.getElementById('val_boltz_ipsae').innerText = (d.Boltz_iPSAE || 0).toFixed(3);
+            document.getElementById('val_bg_rmsd').innerText = (d.BoltzGen_RMSD || 0).toFixed(2) + ' Å';
+            document.getElementById('val_hbonds').innerText = d.H_Bonds || '0';
+            document.getElementById('val_dsasa').innerText = (d.Delta_SASA || 0).toFixed(0) + ' Å²';
+            document.getElementById('detailSequence').innerText = d.sequence_clean || "N/A";
+        }
+    </script>
+</body>
+</html>
+    
